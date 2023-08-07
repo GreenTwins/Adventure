@@ -1,0 +1,12 @@
+﻿  Character.cpp
+  CONSOLECHANGE.cpp
+  Enemy.cpp
+  Game.cpp
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(81,36): warning C4551: function call missing argument list
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(81,36): error C3867: 'Game::isSQL': non-standard syntax; use '&' to create a pointer to member
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(81,36): error C3867: 'Game::isLocal': non-standard syntax; use '&' to create a pointer to member
+  LOCALSTORAGE.cpp
+  main.cpp
+  Player.cpp
+  SQLCONN.cpp
+  Generating Code...
