@@ -21,7 +21,6 @@ class Game {
 	bool onlocal = false;
 public:
 	Player playerN;
-	//MainMenu Main;
 	std::vector<Enemy>enemyList;
 	static Game& getinstance();
 	void createPlayer(std::string n);

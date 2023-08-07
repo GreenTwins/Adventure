@@ -51,7 +51,7 @@ void Game::createPlayer(std::string n) {
 
 }
 bool Game::loadGame() {
-
+	return 0;
 }
 
 bool Game::isSQL()const {
@@ -78,7 +78,7 @@ void MainMenu::display()const {
 	std::string name;
 	std::cout << "---MAIN MENU---" << std::endl;
 	std::cout << "\t 1.) NEW GAME" << std::endl;
-	if ((Game::isSQL)||(Game::isLocal)) {
+	if ((Game::getinstance().isSQL())|| (Game::getinstance().isLocal())) {
 		std::cout << "\t 2.) LOAD GAME" << std::endl;
 	}
 	
