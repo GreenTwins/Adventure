@@ -59,3 +59,42 @@ bool SQLCONN::connect() {
 void SQLCONN::disconnect() {
 	SQLDisconnect(sqlconnectionhandle);
 }
+
+bool SQLCONN::displayNames() {
+	SQLHSTMT sqlStatement;
+	SQLAllocHandle(SQL_HANDLE_STMT, sqlconnectionhandle, &sqlStatement);
+	
+	std::string query = "SELECT PlayerName FROM Player";
+	//gotta do this annoying imbue since SQLWCHAR is a wchar_t
+	std::wcout.imbue(std::locale());
+	SQLRETURN ret=SQLExecDirect(sqlStatement, (SQLWCHAR*)query.c_str(), SQL_NTS);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLWCHAR errorMsg[SQL_MAX_MESSAGE_LENGTH];
+		SQLSMALLINT msgLen;
+		SQLGetDiagRec(SQL_HANDLE_STMT, sqlStatement, 1, NULL, NULL, errorMsg, SQL_MAX_MESSAGE_LENGTH, &msgLen);
+		std::wcout<< "Error exe query: " << errorMsg << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, sqlStatement);
+		return false;
+	}
+	SQLWCHAR PlayerName[SQL_RESULT_LEN];
+	
+	SQLLEN playerNameLength;
+
+	while (SQLFetch(sqlStatement) == SQL_SUCCESS) {
+		SQLGetData(sqlStatement, 1, SQL_C_CHAR, PlayerName, SQL_RESULT_LEN, &playerNameLength);
+		std::wcout << PlayerName << std::endl;
+
+	}
+	ret=SQLFreeStmt(sqlStatement, SQL_CLOSE);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLWCHAR errorMsg[SQL_MAX_MESSAGE_LENGTH];
+		SQLSMALLINT msgLen;
+		SQLGetDiagRec(SQL_HANDLE_STMT, sqlStatement, 1, NULL, NULL, errorMsg, SQL_MAX_MESSAGE_LENGTH, &msgLen);
+		std::wcout << "Error freeing data: " << errorMsg << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, sqlStatement);
+		return false;
+	}
+
+	SQLFreeHandle(SQL_HANDLE_STMT, sqlStatement);
+	return true;
+}

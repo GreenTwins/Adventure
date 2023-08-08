@@ -28,6 +28,7 @@ public:
 	bool connect();
 	void disconnect();
 	//display all chars
+	bool displayNames();
 	//gather all enemies from sql
 };
 

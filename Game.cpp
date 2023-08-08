@@ -1,10 +1,15 @@
 #include "Game.h"
 #include <iostream>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
+#include "SQLCONN.h"
+#include "LOCALSTORAGE.h"
 
 
+void Game::fromSQL(bool i) {
+	onserver = i;
+}
+void Game::fromLocal(bool i) {
+	onlocal = i;
+}
 Game::~Game() {
 	std::cout << "Game instance deleted" << std::endl;
 }
@@ -24,8 +29,50 @@ void Game::createPlayer(std::string n) {
 	playerN=Player::Player(n);
 
 }
-bool Game::loadGame() {
-	return 0;
+
+void Game::loadGame() {
+	int choice{ 0 };
+	std::string playername;
+	std::cout << "Are you loading from a server or local storage?: ";
+	std::cout << "1.) Server" << "\t" << "2.) Local Storage" << std::endl;
+	std::cin >> choice;
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');//clear anything remaining in the stream so we can get playername data
+	Player newplayer;
+	switch (choice) {
+	case 1: 
+	{
+		//check SQL server
+		SQLCONN& connection = SQLCONN::createInstance();
+		if (connection.connect()) {
+			//gather avail chars in dB & display
+			if (connection.displayNames()) {
+				fromSQL(true);
+				std::cout << "\n Type the name of the character you want to load: ";
+				std::getline(std::cin, playername);
+				std::cout << "cool" << std::endl;
+				//let user choose char
+				//loadPlayer();
+			}
+			else {
+				std::cout << "There is no data to load" << std::endl;
+			}
+			
+			connection.disconnect();
+		}
+		
+	
+		//load data into Player class
+		
+		break;
+	}
+	case 2: {
+		//check local storage
+		break;
+	}
+	default: 
+		std::cout << "Please choose a correct option" << std::endl;
+		break;
+	}
 }
 
 bool Game::isSQL()const {
@@ -52,21 +99,24 @@ void MainMenu::display()const {
 	std::string name;
 	std::cout << "---MAIN MENU---" << std::endl;
 	std::cout << "\t 1.) NEW GAME" << std::endl;
-	if ((Game::getinstance().isSQL())|| (Game::getinstance().isLocal())) {
-		std::cout << "\t 2.) LOAD GAME" << std::endl;
-	}
+	std::cout << "\t 2.) LOAD GAME" << std::endl;
+	
 	
 	std::cout << "\n What would you like to do?: ";
 	std::cin >> option;
 	switch (option) {
+
 	case 1: {
 		std::cout << " What name will you bestow upon your new character?: ";
 		std::cin >> name;
-		Game::getinstance().createPlayer(name);
+		Game& newGame = Game::getinstance();
+		newGame.createPlayer(name);
 	}
 		  break;
 	case 2: {
-		std::cout << "coming soon" << std::endl;
+		Game& newGame = Game::getinstance();
+		newGame.loadGame();
+		
 	}
 		  break;
 	default:

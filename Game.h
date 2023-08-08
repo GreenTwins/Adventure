@@ -2,8 +2,6 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 #include "Player.h"
-#include "SQLCONN.h"
-#include "LOCALSTORAGE.h"
 #include "Enemy.h"
 #include "CONSOLECHANGE.h"
 #include <vector>
@@ -26,8 +24,10 @@ public:
 	void createPlayer(std::string n);
 	void loadPlayer();//will need something in the input
 	//enter map-> map holds the dungeons and expects a player and a list of enemies as its input
-	bool loadGame();
+	void loadGame();
 	bool isSQL()const;
+	void fromSQL(bool i);
+	void fromLocal(bool i);
 	bool isLocal()const;
 
 };

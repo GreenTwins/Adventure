@@ -1,10 +1,2 @@
-﻿  Character.cpp
-  CONSOLECHANGE.cpp
-  Enemy.cpp
-  Game.cpp
-  LOCALSTORAGE.cpp
-  main.cpp
-  Player.cpp
-  SQLCONN.cpp
-  Generating Code...
+﻿  Game.cpp
   Character.cpp.vcxproj -> C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\x64\Debug\Character.cpp.exe
