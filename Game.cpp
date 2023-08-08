@@ -15,35 +15,9 @@ Game& Game::getinstance() {
 }
 
 Game::Game() {
-	//thread 1->load up main
-	//thread 2-> check folder location for data, if none: (a)set isSQL to true temp (b) 
-	MainMenu& master=MainMenu::getInstance();
-}
-
-void Game::mainMenu() {
-	int option = 0;
-	std::string name;
-	std::cout << "---MAIN MENU---" << std::endl;
-	std::cout << "\t 1.) NEW GAME" << std::endl;
-	std::cout << "\t 2.) LOAD GAME" << std::endl;
-	std::cout << "\n What would you like to do?: ";
-	std::cin >> option;
-
-	switch (option) {
-	case 1: {
-		std::cout << " What name will you bestow upon your new character?: ";
-		std::cin >> name;
-		createPlayer(name);
-	}
-		  break;
-	case 2: {
-		std::cout << "coming soon" << std::endl;
-	}
-		  break;
-	default:
-		std::cout << "Please enter valid number" << std::endl;
-		break;
-	}
+	MainMenu& master = MainMenu::getInstance();
+	master.display();
+	
 }
 
 void Game::createPlayer(std::string n) {
@@ -84,4 +58,19 @@ void MainMenu::display()const {
 	
 	std::cout << "\n What would you like to do?: ";
 	std::cin >> option;
+	switch (option) {
+	case 1: {
+		std::cout << " What name will you bestow upon your new character?: ";
+		std::cin >> name;
+		Game::getinstance().createPlayer(name);
+	}
+		  break;
+	case 2: {
+		std::cout << "coming soon" << std::endl;
+	}
+		  break;
+	default:
+		std::cout << "Please enter valid number" << std::endl;
+		break;
+	}
 }

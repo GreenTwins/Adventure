@@ -26,7 +26,6 @@ public:
 	void createPlayer(std::string n);
 	void loadPlayer();//will need something in the input
 	//enter map-> map holds the dungeons and expects a player and a list of enemies as its input
-	void mainMenu();
 	bool loadGame();
 	bool isSQL()const;
 	bool isLocal()const;
