@@ -20,8 +20,8 @@ Game& Game::getinstance() {
 }
 
 Game::Game() {
-	MainMenu& master = MainMenu::getInstance();
-	master.display();
+	/*MainMenu& master = MainMenu::getInstance();
+	master.display();*/
 	
 }
 
@@ -109,10 +109,9 @@ void MainMenu::display()const {
 	case 1: {
 		std::cout << " What name will you bestow upon your new character?: ";
 		std::cin >> name;
-		std::cout << Game::getinstance().isSQL();
-		//std::cout << name;
-		/*Game& gameInstance=Game::getinstance();
-		gameInstance.createPlayer(name);*/
+
+		Game& gameInstance=Game::getinstance();
+		gameInstance.createPlayer(name);
 	}
 		  break;
 	case 2: {
