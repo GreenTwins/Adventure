@@ -13,10 +13,7 @@
 
 
 int main() {
-	/*SQLCONN& CM = SQLCONN::createInstance();
-	CM.connect();
-	std::cout << " ah we're here" << std::endl;
-	CM.disconnect();*/
+	
 
 	Game& newGame = Game::getinstance();
 

@@ -109,13 +109,14 @@ void MainMenu::display()const {
 	case 1: {
 		std::cout << " What name will you bestow upon your new character?: ";
 		std::cin >> name;
-		Game& newGame = Game::getinstance();
-		newGame.createPlayer(name);
+		std::cout << Game::getinstance().isSQL();
+		//std::cout << name;
+		/*Game& gameInstance=Game::getinstance();
+		gameInstance.createPlayer(name);*/
 	}
 		  break;
 	case 2: {
-		Game& newGame = Game::getinstance();
-		newGame.loadGame();
+		Game::getinstance().loadGame();
 		
 	}
 		  break;
