@@ -15,11 +15,12 @@ Player::Player(std::string& s) :Character{ s } {
 void Player::createATK(int num) {
 	std::string atk;
 	int val;
+	system(CLEAR_SCREEN);
 	for (int i = 0; i < num; ++i) {
 		std::cout << "Attack " << i + 1 << " name: ";
 		std::getline(std::cin, atk);
 		val = rand() % 6 + 1;
-		system(CLEAR_SCREEN);
+		
 		Player::updateATKList(atk, val);
 	}
 }
