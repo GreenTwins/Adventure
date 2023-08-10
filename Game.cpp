@@ -29,7 +29,9 @@ void Game::createPlayer(std::string n) {
 	playerN=Player::Player(n);
 
 }
-
+void Game::play() {
+	 
+}
 void Game::loadGame() {
 	int choice{ 0 };
 	std::string playername;

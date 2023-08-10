@@ -29,7 +29,7 @@ public:
 	void fromSQL(bool i);
 	void fromLocal(bool i);
 	bool isLocal()const;
-
+	void play();
 };
 
 
