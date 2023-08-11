@@ -61,10 +61,23 @@ public:
 class Map {
 public:
 	int data;
-	std::map<int, std::list<int>>adjList;
+	std::map<int, std::list<int>>mapp;
+	std::vector<Room>pathway;
 
+	void loadPathway(int n);
 	void add(int s, int d);
-	void makeMove(int a);
+	int availableMoves(int a);
+};
+
+#endif
+
+#pragma once
+#ifndef _ROOM_H_
+#define _ROOM_H_
+
+struct Room {
+	int ID{ 0 };
+	bool hasEnemy = false;
 };
 
 #endif

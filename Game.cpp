@@ -2,6 +2,7 @@
 #include <iostream>
 #include "SQLCONN.h"
 #include "LOCALSTORAGE.h"
+#include <random>
 
 
 void Game::fromSQL(bool i) {
@@ -128,12 +129,28 @@ void MainMenu::display()const {
 }
 
 void Map::add(int s, int d) {
-	adjList[s].push_back(d);
-	adjList[d].push_back(s);
+	mapp[s].push_back(d);
+	mapp[d].push_back(s);
 }
-void Map::makeMove(int a) {
-		for (auto neighbor : adjList[a]) {
-			std::cout << neighbor << std::endl;
+int Map::availableMoves(int a) {
+	int movement{ 0 };
+	std::cout << "The following pathways are available from here: ";
+		for (auto neighbor : mapp[a]) {
+			std::cout << neighbor << "\t";
 		}
+		std::cout<<"\n Where would you like to go?: ";
+		std::cin >> movement;
 
+		return movement;
+}
+void Map::loadPathway(int n) {
+	//given the number of rooms on this path
+	srand(time(NULL));
+	for (int i = 1; i <=n; ++i) {
+		
+		Room a;
+		a.ID = i;
+		a.hasEnemy = rand() % 1 + 1;
+		pathway.push_back(a);
+	}
 }
