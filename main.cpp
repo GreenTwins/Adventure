@@ -15,9 +15,21 @@
 int main() {
 	
 
-	Game& newGame = Game::getinstance();
+	/*Game& newGame = Game::getinstance();
 	MainMenu& mainMenu = MainMenu::getInstance();
-	mainMenu.display();
+	mainMenu.display();*/
 
+	Map newMap;
+	newMap.add(1, 2);
+	newMap.add(1, 4);
+	newMap.add(2, 3);
+	newMap.add(2, 6);
+	newMap.add(3, 4);
+	newMap.add(3, 6);
+	newMap.add(4, 5);
+	newMap.add(5, 7);
+	newMap.add(5, 8);
+	
+	newMap.makeMove(5);
 	return 0;
 }

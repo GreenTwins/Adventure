@@ -4,6 +4,8 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "CONSOLECHANGE.h"
+#include <map>
+#include <list>
 #include <vector>
 
 
@@ -49,5 +51,20 @@ public:
 	void display()const;
 };
 
+
+#endif
+
+#pragma once
+#ifndef _MAP_H_
+#define _MAP_H_
+
+class Map {
+public:
+	int data;
+	std::map<int, std::list<int>>adjList;
+
+	void add(int s, int d);
+	void makeMove(int a);
+};
 
 #endif

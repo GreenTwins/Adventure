@@ -126,3 +126,14 @@ void MainMenu::display()const {
 		break;
 	}
 }
+
+void Map::add(int s, int d) {
+	adjList[s].push_back(d);
+	adjList[d].push_back(s);
+}
+void Map::makeMove(int a) {
+		for (auto neighbor : adjList[a]) {
+			std::cout << neighbor << std::endl;
+		}
+
+}
