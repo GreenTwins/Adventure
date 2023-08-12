@@ -1,3 +1,11 @@
-﻿  Game.cpp
-C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(166,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+﻿  Character.cpp
+  CONSOLECHANGE.cpp
+  Enemy.cpp
+  Game.cpp
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(207,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  LOCALSTORAGE.cpp
+  main.cpp
+  Player.cpp
+  SQLCONN.cpp
+  Generating Code...
   Character.cpp.vcxproj -> C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\x64\Debug\Character.cpp.exe

@@ -21,7 +21,8 @@ class Game {
 	bool onlocal = false;
 public:
 	Player playerN;
-	std::vector<Enemy>enemyList;
+	std::vector<std::map<int, int>>locations;//first int has mapLocation and 2nd is the num of dungeons at that location. The location also determines the size of the map
+	std::vector<Enemy>enemyList;//this gets loaded based on the location
 	static Game& getinstance();
 	void createPlayer(std::string n);
 	void loadPlayer();//will need something in the input
@@ -55,38 +56,25 @@ public:
 #endif
 
 #pragma once
-#ifndef _ROOM_H_
-#define _ROOM_H_
-
-class Room {
-	int ID{ 0 };
-	bool hasEnemy = false;
-public:
-	Room();
-	~Room();
-	void setID(int n);
-	int getID()const;
-	void verifyEnemy(bool n);
-	bool getEnemyVer()const;
-
-};
-
-#endif
-
-
-#pragma once
 #ifndef _MAP_H_
 #define _MAP_H_
 
 class Map {
+
 public:
+	const int SMALL_MAP = 8;
+	const int MEDIUM_MAP = 10;
+	const int LARGE_MAP = 12;
 	int data;
 	int beg, end;
-	std::map<int, std::list<int>>mapp;
+
+	bool isBossPresent = false;
+	std::map<int, std::list<int>>mapp;//provides the moves
 	//std::vector<Room>pathway;
-	std::map<int, bool>pathwayy;
+	std::map<int, bool>pathwayy;//provides enemy location
 
-
+	Map(int numPaths);
+	~Map();
 	void loadPathway(int n);
 	void add(int s, int d);
 	int availableMoves(int a);

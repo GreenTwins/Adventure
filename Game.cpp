@@ -128,12 +128,63 @@ void MainMenu::display()const {
 	}
 }
 
+Map::Map(int n) {
+	if (n == SMALL_MAP) {
+		add(1, 2);
+		add(1, 4);
+		add(2, 3);
+		add(2, 6);
+		add(3, 4);
+		add(3, 6);
+		add(4, 5);
+		add(5, 7);
+		add(5, 8);
+		loadPathway(SMALL_MAP);
+		end = SMALL_MAP;
+	}
+	else if (n == MEDIUM_MAP) {
+		add(1, 2);
+		add(1, 3);
+		add(2, 4);
+		add(2, 6);
+		add(3, 8);
+		add(4, 5);
+		add(5, 6);
+		add(5, 7);
+		add(6, 8);
+		add(7, 10);
+		add(8, 9);
+		loadPathway(MEDIUM_MAP);
+		end = MEDIUM_MAP;
+	}
+	else {
+		add(1, 2);
+		add(1, 3);
+		add(2, 4);
+		add(2, 6);
+		add(3, 8);
+		add(3, 10);
+		add(4, 5);
+		add(5, 6);
+		add(6, 7);
+		add(8, 10);
+		add(8, 9);
+		add(9, 11);
+		add(11, 12);
+		loadPathway(LARGE_MAP);
+		end = LARGE_MAP;
+	}
+}
+Map::~Map() {}
 void Map::add(int s, int d) {
 	mapp[s].push_back(d);
 	mapp[d].push_back(s);
 }
 int Map::availableMoves(int a) {
 	int movement{ 0 };
+	if (pathwayy[a]) {//this gets the .second of the map which is whether there is an enemy
+		std::cout << "There is an enemy in the room" << std::endl;
+	}
 	std::cout << "The following pathways are available from here: ";
 		for (auto neighbor : mapp[a]) {
 			std::cout << "[ " << neighbor << " ";
@@ -151,17 +202,7 @@ void Map::makeMove(int currLocation) {
 	makeMove(availableMoves(currLocation));
 
 }
-//void Map::loadPathway(int n) {
-//	//given the number of rooms on this path
-//	srand(time(NULL));
-//	for (int i = 1; i <=n; ++i) {
-//		
-//		Room a;
-//		a.setID(i);
-//		a.verifyEnemy(rand() % 1 + 1);
-//		pathway.push_back(a);
-//	}
-//}
+
 void Map::loadPathway(int n) {
 	srand(time(NULL));
 	for (int i = 1; i <= n; ++i) {
@@ -174,23 +215,3 @@ void Map::loadPathway(int n) {
 	}
 }
 
-//ROOM
-
-Room::Room() {};
-
-Room::~Room() {};
-void Room::setID(int n) {
-	ID = n;
-}
-
-int Room::getID()const {
-	return ID;
-}
-
-void Room::verifyEnemy(bool n) {
-	hasEnemy = n;
-}
-
-bool Room::getEnemyVer()const {
-	return hasEnemy;
-}
