@@ -30,6 +30,11 @@ int main() {
 	newMap.add(5, 7);
 	newMap.add(5, 8);
 	
-	newMap.makeMove(5);
+	//newMap.makeMove(5);
+	newMap.beg = 1;
+	newMap.end = 8;
+	newMap.makeMove(newMap.beg);
+
+	std::cout << "Reached the end of the map" << std::endl;
 	return 0;
 }

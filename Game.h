@@ -55,29 +55,41 @@ public:
 #endif
 
 #pragma once
+#ifndef _ROOM_H_
+#define _ROOM_H_
+
+class Room {
+	int ID{ 0 };
+	bool hasEnemy = false;
+public:
+	Room();
+	~Room();
+	void setID(int n);
+	int getID()const;
+	void verifyEnemy(bool n);
+	bool getEnemyVer()const;
+
+};
+
+#endif
+
+
+#pragma once
 #ifndef _MAP_H_
 #define _MAP_H_
 
 class Map {
 public:
 	int data;
+	int beg, end;
 	std::map<int, std::list<int>>mapp;
 	std::vector<Room>pathway;
 
 	void loadPathway(int n);
 	void add(int s, int d);
 	int availableMoves(int a);
+	void makeMove(int currLocation);
 };
 
 #endif
 
-#pragma once
-#ifndef _ROOM_H_
-#define _ROOM_H_
-
-struct Room {
-	int ID{ 0 };
-	bool hasEnemy = false;
-};
-
-#endif

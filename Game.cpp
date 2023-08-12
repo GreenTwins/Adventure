@@ -136,12 +136,20 @@ int Map::availableMoves(int a) {
 	int movement{ 0 };
 	std::cout << "The following pathways are available from here: ";
 		for (auto neighbor : mapp[a]) {
-			std::cout << neighbor << "\t";
+			std::cout << "[ " << neighbor << " ";
 		}
+		std::cout << "]";
 		std::cout<<"\n Where would you like to go?: ";
 		std::cin >> movement;
 
 		return movement;
+}
+void Map::makeMove(int currLocation) {
+	if (currLocation == end) {
+		return;
+	}
+	makeMove(availableMoves(currLocation));
+
 }
 void Map::loadPathway(int n) {
 	//given the number of rooms on this path
@@ -149,8 +157,29 @@ void Map::loadPathway(int n) {
 	for (int i = 1; i <=n; ++i) {
 		
 		Room a;
-		a.ID = i;
-		a.hasEnemy = rand() % 1 + 1;
+		a.setID(i);
+		a.verifyEnemy(rand() % 1 + 1);
 		pathway.push_back(a);
 	}
+}
+
+//ROOM
+
+Room::Room() {};
+
+Room::~Room() {};
+void Room::setID(int n) {
+	ID = n;
+}
+
+int Room::getID()const {
+	return ID;
+}
+
+void Room::verifyEnemy(bool n) {
+	hasEnemy = n;
+}
+
+bool Room::getEnemyVer()const {
+	return hasEnemy;
 }
