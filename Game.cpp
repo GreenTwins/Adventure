@@ -151,15 +151,26 @@ void Map::makeMove(int currLocation) {
 	makeMove(availableMoves(currLocation));
 
 }
+//void Map::loadPathway(int n) {
+//	//given the number of rooms on this path
+//	srand(time(NULL));
+//	for (int i = 1; i <=n; ++i) {
+//		
+//		Room a;
+//		a.setID(i);
+//		a.verifyEnemy(rand() % 1 + 1);
+//		pathway.push_back(a);
+//	}
+//}
 void Map::loadPathway(int n) {
-	//given the number of rooms on this path
 	srand(time(NULL));
-	for (int i = 1; i <=n; ++i) {
+	for (int i = 1; i <= n; ++i) {
 		
-		Room a;
-		a.setID(i);
-		a.verifyEnemy(rand() % 1 + 1);
-		pathway.push_back(a);
+		pathwayy.insert(std::pair<int, bool>(i, (rand() % 2)));
+	}
+	for (const auto& entry : pathwayy) {
+
+		std::cout << entry.first << ", " << entry.second << std::endl;
 	}
 }
 

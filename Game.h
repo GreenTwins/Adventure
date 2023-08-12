@@ -83,7 +83,9 @@ public:
 	int data;
 	int beg, end;
 	std::map<int, std::list<int>>mapp;
-	std::vector<Room>pathway;
+	//std::vector<Room>pathway;
+	std::map<int, bool>pathwayy;
+
 
 	void loadPathway(int n);
 	void add(int s, int d);
