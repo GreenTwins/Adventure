@@ -3,36 +3,69 @@
 #include "SQLCONN.h"
 #include "LOCALSTORAGE.h"
 #include <random>
+#include <string>
 
+/******************************************************************************************************
+GAME CLASS init,cleaner, getters and setters
 
+*******************************************************************************************************/
+
+Game::Game() {
+	/*MainMenu& master = MainMenu::getInstance();
+	master.display();*/
+
+}
+Game::~Game() {
+	std::cout << "Game instance deleted" << std::endl;
+}
 void Game::fromSQL(bool i) {
 	onserver = i;
 }
 void Game::fromLocal(bool i) {
 	onlocal = i;
 }
-Game::~Game() {
-	std::cout << "Game instance deleted" << std::endl;
-}
+
 
 Game& Game::getinstance() {
 	static Game instance;
 	return instance;
 }
 
-Game::Game() {
-	/*MainMenu& master = MainMenu::getInstance();
-	master.display();*/
-	
+
+bool Game::isSQL()const {
+	return onserver;
+}
+bool Game::isLocal()const {
+	return onlocal;
+}
+void Game::getLocationName(int loc) {
+
+	switch (loc) {
+	case 1:
+		std::cout << "You've entered Rom Island" << std::endl;
+		break;
+	case 2:
+		break;
+	default:
+		std::cerr << "Location is not available" << std::endl;
+		break;
+	}
+
 }
 
+/******************************************************************************************************
+GAME CLASS player association
+
+*******************************************************************************************************/
 void Game::createPlayer(std::string n) {
 	playerN=Player::Player(n);
 
 }
-void Game::play() {
-	 
-}
+/******************************************************************************************************
+GAME CLASS game loading and instances
+
+*******************************************************************************************************/
+
 void Game::loadGame() {
 	int choice{ 0 };
 	std::string playername;
@@ -78,25 +111,51 @@ void Game::loadGame() {
 	}
 }
 
-bool Game::isSQL()const {
-	return onserver;
+
+void Game::PrePlay() {
+	bool continuetoPlay = true;
+	char option;
+	if (GameInit) {
+		getLocationName(1);//starting new
+		Map newMap;
+		newMap.createPaths(1);
+		while (continuetoPlay) {
+			play(newMap);
+			std::cout << "Type C to continue or Q to quit: ";
+			std::cin >> option;
+			if (option == 'Q') {
+				continuetoPlay = false;
+			}
+		}
+		
+	}
 }
-bool Game::isLocal()const {
-	return onlocal;
+void Game::play(Map& currentMap) {
+	currentMap.makeMove(1);
+	std::cout << "reached the end of the map" << std::endl;
 }
 
 
 //MAIN MENU
+
+/******************************************************************************************************
+MAIN MENU CLASS init,cleaner, getters and setters
+
+*******************************************************************************************************/
+MainMenu::MainMenu() {}
+MainMenu::~MainMenu() {}
 
 MainMenu& MainMenu::getInstance() {
 	static MainMenu instance;
 	return instance;
 }
 
-MainMenu::~MainMenu() {}
 
-MainMenu::MainMenu() {}
+/******************************************************************************************************
+MAIN MENU CLASS only visible function: display() shows the new game, load game and save game options
 
+Each option chosen will determine how the user interacts with the framework
+*******************************************************************************************************/
 void MainMenu::display()const {
 	int option = 0;
 	std::string name;
@@ -115,6 +174,8 @@ void MainMenu::display()const {
 
 		Game& gameInstance=Game::getinstance();
 		gameInstance.createPlayer(name);
+		gameInstance.GameInit = true;
+		gameInstance.PrePlay();
 	}
 		  break;
 	case 2: {
@@ -127,9 +188,24 @@ void MainMenu::display()const {
 		break;
 	}
 }
+//map()->loadMapData list of all maps with avail bosses and levels// location is chosen and paths are created and filled
 
-Map::Map(int n) {
-	if (n == SMALL_MAP) {
+/******************************************************************************************************
+MAP CLASS init,cleaner, getters and setters
+
+*******************************************************************************************************/
+Map::Map() {
+	loadMapData();
+}
+Map::~Map() {}
+
+/******************************************************************************************************
+MAP CLASS deterministic functions: creates maps based on certain flags and data inherited from player (lvl,
+currentLocation)
+
+*******************************************************************************************************/
+void Map::createPaths(int Location) {
+	if (Location < 4) {
 		add(1, 2);
 		add(1, 4);
 		add(2, 3);
@@ -142,7 +218,7 @@ Map::Map(int n) {
 		loadPathway(SMALL_MAP);
 		end = SMALL_MAP;
 	}
-	else if (n == MEDIUM_MAP) {
+	else if (Location > 4 && Location < 6) {
 		add(1, 2);
 		add(1, 3);
 		add(2, 4);
@@ -175,7 +251,46 @@ Map::Map(int n) {
 		end = LARGE_MAP;
 	}
 }
-Map::~Map() {}
+void Map::loadMapData() {
+	//locationData.insert(std::pair<int, std::list<int,int,int>(1, 3)); //first island has 3 "dungeons"
+	//this loads up all the maps
+	locationData[1].push_back(0);
+	locationData[1].push_back(0);
+	locationData[1].push_back(1);
+
+	locationData[2].push_back(0);
+	locationData[2].push_back(1);
+	locationData[2].push_back(1);
+	
+	locationData[3].push_back(0);
+	locationData[3].push_back(0);
+	locationData[3].push_back(1);
+
+	locationData[4].push_back(0);
+	locationData[4].push_back(0);
+	locationData[4].push_back(1);
+
+	locationData[5].push_back(0);
+	locationData[5].push_back(0);
+	locationData[5].push_back(1);
+
+	locationData[6].push_back(0);
+	locationData[6].push_back(0);
+	locationData[6].push_back(1);
+
+	locationData[7].push_back(0);
+	locationData[7].push_back(0);
+	locationData[7].push_back(1);
+
+	locationData[8].push_back(0);
+	locationData[8].push_back(0);
+	locationData[8].push_back(1);
+
+	locationData[9].push_back(0);
+	locationData[9].push_back(0);
+	locationData[9].push_back(1);
+	//locations.push_back(locationData);
+}
 void Map::add(int s, int d) {
 	mapp[s].push_back(d);
 	mapp[d].push_back(s);
@@ -203,15 +318,75 @@ void Map::makeMove(int currLocation) {
 
 }
 
-void Map::loadPathway(int n) {
+void Map::loadPathway(int n) {//a list of which path has an enemy present
 	srand(time(NULL));
 	for (int i = 1; i <= n; ++i) {
 		
 		pathwayy.insert(std::pair<int, bool>(i, (rand() % 2)));
 	}
-	for (const auto& entry : pathwayy) {
+	/*for (const auto& entry : pathwayy) {
 
 		std::cout << entry.first << ", " << entry.second << std::endl;
-	}
+	}*/
 }
 
+/******************************************************************************************************
+GAME CONSOLE CLASS init,cleaner, getters and setters
+
+*******************************************************************************************************/
+
+GameConsole::GameConsole() {
+
+}
+GameConsole::~GameConsole() {}
+
+/******************************************************************************************************
+GAME CONSOLE deterministic functions: travel, go to store, back to main, display stats, display curr data, 
+inventory
+
+*******************************************************************************************************/
+void GameConsole::display()const {
+	std::cout << "Name: " << Game::getinstance().playerN.getName() << "\t";
+	std::cout << "Level: " << Game::getinstance().playerN.getLvl() << std::endl;
+	std::cout << "Health: " << Game::getinstance().playerN.getHP() << "\t";
+	std::cout << "Current Location: " << std::endl;//get location from game
+	std::cout << "XP: " << "\t";
+	std::cout << "Current Requirement: " << std::endl;
+
+
+}
+void GameConsole::options() {
+	int option;
+	std::cout << "1.) Travel" << std::endl;
+	std::cout << "2.) Enter Mission" << std::endl;
+	std::cout << "3.) Go to Inventory" << std::endl;
+	std::cout << "4.) Go to Store" << std::endl;
+	std::cout << "5.) Display stats" << std::endl;
+	std::cout << "6.) Back to Main Menu" << std::endl;
+
+	std::cout << "Which event do you choose to complete?: ";
+	std::cin >> option;
+
+	switch (option) {
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	case 5:
+		break;
+	case 6:
+		backtoMain();
+		break;
+	default:
+		std::cerr << "Please choose an appropriate option from above" << std::endl;
+		break;
+	}
+}
+void GameConsole::backtoMain() {
+	//call main menu instance
+	MainMenu::getInstance();
+}

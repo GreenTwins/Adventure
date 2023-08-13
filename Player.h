@@ -13,7 +13,8 @@ public:
 	Player(const Player& o) = delete;
 	Player(std::string& s);
 	virtual ~Player() {}
-
+	int getLvl()const;
+	void setlvl(int lvl);
 	//ATK
 	void createATK(int num);
 	int attack()override;

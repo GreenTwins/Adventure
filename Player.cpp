@@ -12,6 +12,12 @@ Player::Player(std::string& s) :Character{ s } {
 	displayStats(1);
 	
 }
+int Player::getLvl()const {
+	return lvl;
+}
+void Player::setlvl(int lvl) {
+	lvl = lvl;//looks wild huh?
+}
 void Player::createATK(int num) {
 	std::string atk;
 	int val;

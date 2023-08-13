@@ -15,14 +15,16 @@
 int main() {
 	
 
-	/*Game& newGame = Game::getinstance();
+	Game& newGame = Game::getinstance();
 	MainMenu& mainMenu = MainMenu::getInstance();
-	mainMenu.display();*/
+	mainMenu.display();
 
-	Map newMap(8);
-	newMap.makeMove(1);
+	/*Map newMap(8);
+	newMap.makeMove(1);*/
 	
 
-	std::cout << "Reached the end of the map" << std::endl;
+	//std::cout << "Reached the end of the map" << std::endl;
+
+
 	return 0;
 }
