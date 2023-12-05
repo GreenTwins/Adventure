@@ -76,9 +76,10 @@ public:
 	void createPlayer(std::string n);
 	void loadPlayer();//will need something in the input
 	//enter map-> map holds the dungeons and expects a player and a list of enemies as its input
-	void loadGame();
-	void PrePlay();
-	void play(Map& currentMap);
+	bool loadGame();
+	void loadEnemies(int loc, std::vector<Enemy>&enemyList);
+	bool PrePlay();
+	bool play(Map& currentMap);
 	void getLocationName(int loc);
 	bool isSQL()const;
 	void fromSQL(bool i);
@@ -109,7 +110,7 @@ class MainMenu {
 public:
 	static MainMenu& getInstance();
 	void Save();
-	void display()const;
+	bool display()const;
 };
 
 
@@ -130,7 +131,7 @@ missions completed and fulfilled requirements to unlock additional locations
 *******************************************************************************************************/
 class GameConsole {
 public:
-	GameConsole();
+	GameConsole(Player p );
 	~GameConsole();
 	void display()const;
 	void options();

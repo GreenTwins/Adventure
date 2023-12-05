@@ -22,8 +22,11 @@ void Player::createATK(int num) {
 	std::string atk;
 	int val;
 	system(CLEAR_SCREEN);
+	std::cout << "\n";
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	for (int i = 0; i < num; ++i) {
-		std::cout << "Attack " << i + 1 << " name: ";
+		std::cout << "Attack " << i + 1 << " name: " <<'\n';
+		
 		std::getline(std::cin, atk);
 		val = rand() % 6 + 1;
 		

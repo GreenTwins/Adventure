@@ -10,26 +10,30 @@
 //struct SQLHDBC__;
 //typedef SQLHDBC__* SQLHDBC;
 
-struct sqlenvhandle;
-struct sqlconnectionhandle;
+
+#include <vector>
+#include "Enemy.h"
+
 
 
 
 
 class SQLCONN {
-	sqlenvhandle* sqlenvhandle;
-	sqlconnectionhandle* sqlconnectionhandle;
 	SQLCONN();
 	~SQLCONN();
+	
+public:
 	SQLCONN(const SQLCONN& o) = delete;
 	SQLCONN& operator=(const SQLCONN&) = delete;
-public:
 	static SQLCONN& createInstance();
 	bool connect();
 	void disconnect();
 	//display all chars
 	bool displayNames();
 	//gather all enemies from sql
+	void getEnemies(int loc, std::vector<Enemy>&e);
+	
+
 };
 
 #endif

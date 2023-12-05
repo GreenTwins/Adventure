@@ -53,6 +53,16 @@ void Game::getLocationName(int loc) {
 
 }
 
+void Game::loadEnemies(int loc, std::vector<Enemy>&e) {
+	try {
+		SQLCONN &enemyGrab=SQLCONN::createInstance();
+		enemyGrab.getEnemies(loc, e);
+		//enemyGrab.disconnect();
+		}
+	catch (bool result) {
+		std::cout << "Database failed to connect" << std::endl;
+	}
+}
 /******************************************************************************************************
 GAME CLASS player association
 
@@ -66,9 +76,10 @@ GAME CLASS game loading and instances
 
 *******************************************************************************************************/
 
-void Game::loadGame() {
+bool Game::loadGame() {
 	int choice{ 0 };
 	std::string playername;
+	bool conn_success = false;
 	std::cout << "Are you loading from a server or local storage?: ";
 	std::cout << "1.) Server" << "\t" << "2.) Local Storage" << std::endl;
 	std::cin >> choice;
@@ -88,6 +99,7 @@ void Game::loadGame() {
 				std::cout << "cool" << std::endl;
 				//let user choose char
 				//loadPlayer();
+				conn_success = true;
 			}
 			else {
 				std::cout << "There is no data to load" << std::endl;
@@ -109,30 +121,47 @@ void Game::loadGame() {
 		std::cout << "Please choose a correct option" << std::endl;
 		break;
 	}
+
+	return conn_success;
 }
 
 
-void Game::PrePlay() {
-	bool continuetoPlay = true;
+bool Game::PrePlay() {
+	bool tryAgain = true;
+	bool success = false;
 	char option;
-	if (GameInit) {
+	
+	while (tryAgain) {
 		getLocationName(1);//starting new
 		Map newMap;
 		newMap.createPaths(1);
-		while (continuetoPlay) {
-			play(newMap);
-			std::cout << "Type C to continue or Q to quit: ";
+		Game::getinstance().loadEnemies(1, Game::enemyList);
+		//std::cout << Game::getinstance().enemyList.size();
+		if (play(newMap)) {
+			//go back to island
+			success = true;
+			tryAgain = false;
+		}
+		//got back to main menu or try again
+		else {
+			std::cout << "You have died. Would you like to try again? Type C to continue or Q to quit: ";
 			std::cin >> option;
-			if (option == 'Q') {
-				continuetoPlay = false;
+			if (option == 'Q' || option == 'q') {
+				tryAgain = false;
 			}
 		}
-		
 	}
-}
-void Game::play(Map& currentMap) {
+	return success;
+	}
+	
+
+bool Game::play(Map& currentMap) {
 	currentMap.makeMove(1);
 	std::cout << "reached the end of the map" << std::endl;
+	if (playerN.getHP() > 0) {
+		return true;
+	}
+	return false;
 }
 
 
@@ -155,9 +184,12 @@ MainMenu& MainMenu::getInstance() {
 MAIN MENU CLASS only visible function: display() shows the new game, load game and save game options
 
 Each option chosen will determine how the user interacts with the framework
+
+The end result should be to determine if you go to the game console 
 *******************************************************************************************************/
-void MainMenu::display()const {
+bool MainMenu::display()const {
 	int option = 0;
+	bool GoToConsole = true;
 	std::string name;
 	std::cout << "---MAIN MENU---" << std::endl;
 	std::cout << "\t 1.) NEW GAME" << std::endl;
@@ -166,27 +198,32 @@ void MainMenu::display()const {
 	
 	std::cout << "\n What would you like to do?: ";
 	std::cin >> option;
+	Game& gameInstance = Game::getinstance();
 	switch (option) {
 
 	case 1: {
 		std::cout << " What name will you bestow upon your new character?: ";
 		std::cin >> name;
 
-		Game& gameInstance=Game::getinstance();
+		
 		gameInstance.createPlayer(name);
-		gameInstance.GameInit = true;
-		gameInstance.PrePlay();
+		if (!gameInstance.PrePlay()) {
+			GoToConsole = false;
+		}
 	}
 		  break;
 	case 2: {
-		Game::getinstance().loadGame();
-		
+		if (!gameInstance.loadGame()) {
+			GoToConsole = false;
+		}
 	}
 		  break;
 	default:
 		std::cout << "Please enter valid number" << std::endl;
 		break;
 	}
+
+	return GoToConsole;
 }
 //map()->loadMapData list of all maps with avail bosses and levels// location is chosen and paths are created and filled
 
@@ -299,6 +336,10 @@ int Map::availableMoves(int a) {
 	int movement{ 0 };
 	if (pathwayy[a]) {//this gets the .second of the map which is whether there is an enemy
 		std::cout << "There is an enemy in the room" << std::endl;
+		/*int listsize = Game::getinstance().enemyList.size();
+		int randomEnemy = rand() % listsize+1;
+		Enemy newEnemy = Game::getinstance().enemyList[randomEnemy];
+		std::cout << newEnemy.getName() << std::endl;*/
 	}
 	std::cout << "The following pathways are available from here: ";
 		for (auto neighbor : mapp[a]) {
@@ -335,7 +376,7 @@ GAME CONSOLE CLASS init,cleaner, getters and setters
 
 *******************************************************************************************************/
 
-GameConsole::GameConsole() {
+GameConsole::GameConsole(Player p) {
 
 }
 GameConsole::~GameConsole() {}
@@ -369,14 +410,17 @@ void GameConsole::options() {
 
 	switch (option) {
 	case 1:
+		//shows available islands
 		break;
 	case 2:
+		//shows islands quests
 		break;
 	case 3:
 		break;
 	case 4:
 		break;
 	case 5:
+		display();
 		break;
 	case 6:
 		backtoMain();

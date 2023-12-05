@@ -1,3 +1,2 @@
-﻿  Game.cpp
-C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(285,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+﻿  SQLCONN.cpp
   Character.cpp.vcxproj -> C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\x64\Debug\Character.cpp.exe

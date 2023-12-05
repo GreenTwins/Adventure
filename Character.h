@@ -19,6 +19,7 @@ public:
 	Character(int n);
 	Character(std::string& s);
 	virtual ~Character() {}
+	int location{ 0 };
 	std::map<std::string, int>attacks;
 	//get stats
 	std::string getName()const { return name; }
@@ -47,7 +48,7 @@ public:
 	//PLAY
 	virtual int attack()=0;
 	virtual void displayStats(bool Eloop)const = 0;
-	virtual void CreateStats() = 0;
+	//virtual void CreateStats() = 0;
 };
 
 #endif 

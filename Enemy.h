@@ -6,9 +6,12 @@
 class Enemy : public Character {
 public:
 	int numofATK{0};
+	Enemy();
 	Enemy(int lvl);
 	virtual ~Enemy() {}
-	virtual int attack()override;
+	int attack()override; 
+	virtual void displayStats(bool Eloop) const override;
+	
 
 };
 

@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include <iostream>
 
+Enemy::Enemy() {}
 Enemy::Enemy(int lvl) :Character{lvl} {
 	if (lvl <= 3) {
 		numofATK = 3;
@@ -25,4 +26,15 @@ int Enemy::attack() {
 		std::cout << "Access error" << std::endl;
 	}
 	return 0;
+}
+void Enemy::displayStats(bool Eloop)const {
+	std::cout <<"ENEMY: "<< getName() << " STATS" << std::endl;
+	std::cout.width(5);
+	std::cout << "Strength: " << getStr() << std::endl;
+	std::cout << "Defense:  " << getDef() << std::endl;
+	std::cout << "Speed     " << getSpd() << std::endl;
+	std::cout << "Dodge     " << getDodge() << std::endl;
+	std::cout << "Health:   " << getHP() << std::endl;
+	std::cout << "Mana:     " << getMP() << std::endl;
+	std::cout << "---------------------------------------------" << std::endl;
 }

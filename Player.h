@@ -19,7 +19,7 @@ public:
 	void createATK(int num);
 	int attack()override;
 	virtual void displayStats(bool Eloop) const override;
-	virtual void CreateStats()override;
+	void CreateStats();
 };
 
 
