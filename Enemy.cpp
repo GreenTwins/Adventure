@@ -20,6 +20,7 @@ int Enemy::attack() {
 	if (roll_Value > 0 && roll_Value <= numofATK) {
 		auto it = Character::attacks.begin();
 		std::advance(it, roll_Value - 1);
+		std::cout << Enemy::getName() << " uses: " << it->first << std::endl;
 		return (Enemy::getStr() + it->second);
 	}
 	else {

@@ -157,10 +157,12 @@ bool Game::PrePlay() {
 
 bool Game::play(Map& currentMap) {
 	currentMap.makeMove(1);
-	std::cout << "reached the end of the map" << std::endl;
+	
 	if (playerN.getHP() > 0) {
+		std::cout << "reached the end of the map" << std::endl;
 		return true;
 	}
+	std::cout << "You've died" << std::endl;
 	return false;
 }
 
@@ -332,14 +334,94 @@ void Map::add(int s, int d) {
 	mapp[s].push_back(d);
 	mapp[d].push_back(s);
 }
+bool Map::DungeonBattle(Player& pl, Enemy en) {
+	int battleroll = 0;
+	int enemyatk = 0;
+	int damageDone = 0;
+	int playeratk = 0;
+	int currentRound = 1;
+	srand(time(NULL));
+	if (pl.getSpd() <= en.getSpd()) {
+		std::cout << en.getName() << " is faster!" << std::endl;
+		while ((pl.getHP() > 0) && (en.getHP()>0)) {
+			enemyatk = en.attack();
+			//player attempts to dodge
+			battleroll = rand() % 6 + 1;
+			if (pl.getDodge() != battleroll) {
+				damageDone = (enemyatk - pl.getDef());
+				pl.setHP(pl.getHP() - damageDone);
+				std::cout << "You were too slow. You've received " << damageDone << " damage." << std::endl;
+			}
+			else {
+				std::cout << "You've dodged the attack" << std::endl;
+			}
+			playeratk = pl.attack();
+			//enemy attempts to dodge
+			battleroll = rand() % 6 + 1;
+			if (en.getDodge() != battleroll) {
+				damageDone = (playeratk - en.getDef());
+				en.setHP(en.getHP() - damageDone);
+				std::cout << "You were faster! You've done " << damageDone << " damage." << std::endl;
+			}
+			else {
+				std::cout << "You're attack was dodged" << std::endl;
+			}
+
+			//DISPLAY CURRENT ROUND DATA
+			std::cout << "\n***** ROUND: " << currentRound << "*****" << std::endl;
+			std::cout << pl.getName() << " current HP: " << pl.getHP() << std::endl;
+			std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
+			std::cout << "********************************" << std::endl;
+			currentRound++;
+		}
+	}
+	else {
+		std::cout << "Your speed is greater" << std::endl;
+		while ((pl.getHP() > 0) && (en.getHP()>0)) {
+			playeratk = pl.attack();
+			//enemy attempts to dodge
+			battleroll = rand() % 6 + 1;
+			if (en.getDodge() != battleroll) {
+				en.setHP(en.getHP() - (playeratk - en.getDef()));
+			}
+			else {
+				std::cout << "You're attack was dodged" << std::endl;
+			}
+			enemyatk = en.attack();
+			//player attempts to dodge
+			battleroll = rand() % 6 + 1;
+			if (pl.getDodge() != battleroll) {
+				pl.setHP(pl.getHP() - (enemyatk - pl.getDef()));
+			}
+			else {
+				std::cout << "You've dodged the attack" << std::endl;
+			}
+			//DISPLAY CURRENT ROUND DATA
+			std::cout << "***** ROUND: " << currentRound << "*****" << std::endl;
+			std::cout << pl.getName() << " current HP: " << pl.getHP() << std::endl;
+			std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
+			std::cout << "********************************" << std::endl;
+		}
+	}
+	if (pl.getHP() > 0) {
+		std::cout << "You've triumphed over " << en.getName() << std::endl;
+		return true;
+	}
+	std::cout << "You've fallen in battle" << std::endl;
+	return false;
+}
 int Map::availableMoves(int a) {
 	int movement{ 0 };
+	srand(time(NULL));
 	if (pathwayy[a]) {//this gets the .second of the map which is whether there is an enemy
-		std::cout << "There is an enemy in the room" << std::endl;
-		/*int listsize = Game::getinstance().enemyList.size();
+		//std::cout << "There is an enemy in the room" << std::endl;
+		int listsize = Game::getinstance().enemyList.size();
 		int randomEnemy = rand() % listsize+1;
 		Enemy newEnemy = Game::getinstance().enemyList[randomEnemy];
-		std::cout << newEnemy.getName() << std::endl;*/
+		std::cout << newEnemy.getName()<<" has appeared for battle" << std::endl;
+		if (!DungeonBattle(Game::getinstance().playerN, newEnemy)) {
+			return -1;
+		}
 	}
 	std::cout << "The following pathways are available from here: ";
 		for (auto neighbor : mapp[a]) {
@@ -361,9 +443,18 @@ void Map::makeMove(int currLocation) {
 
 void Map::loadPathway(int n) {//a list of which path has an enemy present
 	srand(time(NULL));
+	int reachThreeCount = 0;
 	for (int i = 1; i <= n; ++i) {
+		bool hasEnemy = rand() % 2;
+		if (reachThreeCount == 3) {
+			hasEnemy = true;
+			reachThreeCount = 0;
+		}
+		pathwayy.insert(std::pair<int, bool>(i, hasEnemy));
+		if (!hasEnemy) {
+			reachThreeCount++;
+		}
 		
-		pathwayy.insert(std::pair<int, bool>(i, (rand() % 2)));
 	}
 	/*for (const auto& entry : pathwayy) {
 

@@ -43,6 +43,7 @@ public:
 	int availableMoves(int a);
 	void makeMove(int currLocation);
 	void loadMapData();
+	bool DungeonBattle(Player& pl, Enemy en);
 };
 
 #endif

@@ -38,6 +38,7 @@ int Player::attack() {
 	if (roll_Value > 0 && roll_Value <= Character::attacks.size()) {
 		auto it = Character::attacks.begin();
 		std::advance(it, roll_Value - 1);
+		std::cout << Player::getName() << " uses: " << it->first << std::endl;
 		return (Player::getStr() + it->second);
 	}
 	else {

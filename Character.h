@@ -6,7 +6,7 @@
 
 
 class Character {
-	std::string name;
+	std::string name = " ";
 	int hp{ 0 };
 	int mp{ 0 };
 	int str{ 0 };
