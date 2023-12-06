@@ -15,4 +15,14 @@ public:
 
 };
 
+class Boss : public Character {
+public:
+	int numofATK{0};
+	Boss();
+	Boss(int lvl);
+	virtual ~Boss() {}
+	int attack()override;
+	virtual void displayStats(bool Eloop) const override;
+
+};
 #endif

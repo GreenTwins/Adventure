@@ -20,6 +20,9 @@ to create the boss room and a boss fight sequence
 theres a recursive call which is tied to a while loop for a turn by turn battle-> this might be the subscript cause. Look into iterative solutions. This issue isnt consistent.
   -> reformed the turn battle code, excluding having 2 while loops based on speed and narrowed down to 1 loop with 2 function calls (this might also be an additional call for subsript error)
 
+  //copy boss
+  INSERT INTO Boss (dungeonLocation, BossName, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc)
+VALUES(1, 'placeHolder', 50, 30, 5,4,4, 2, 5, 10, 4, 6, 2, 3, 'atk1','atk2','atk3','atk4','atk5','atk6');
 */
 int main() {
 	
