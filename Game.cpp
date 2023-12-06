@@ -334,75 +334,135 @@ void Map::add(int s, int d) {
 	mapp[s].push_back(d);
 	mapp[d].push_back(s);
 }
-bool Map::DungeonBattle(Player& pl, Enemy en) {
-	int battleroll = 0;
-	int enemyatk = 0;
+void EnemyAttacks(Character& p1, Character& en) {
+	int enemyatk = en.attack();
+	//player attempts to dodge
+	int battleroll = rand() % 6 + 1;
 	int damageDone = 0;
-	int playeratk = 0;
-	int currentRound = 1;
-	srand(time(NULL));
-	if (pl.getSpd() <= en.getSpd()) {
-		std::cout << en.getName() << " is faster!" << std::endl;
-		while ((pl.getHP() > 0) && (en.getHP()>0)) {
-			enemyatk = en.attack();
-			//player attempts to dodge
-			battleroll = rand() % 6 + 1;
-			if (pl.getDodge() != battleroll) {
-				damageDone = (enemyatk - pl.getDef());
-				pl.setHP(pl.getHP() - damageDone);
-				std::cout << "You were too slow. You've received " << damageDone << " damage." << std::endl;
-			}
-			else {
-				std::cout << "You've dodged the attack" << std::endl;
-			}
-			playeratk = pl.attack();
-			//enemy attempts to dodge
-			battleroll = rand() % 6 + 1;
-			if (en.getDodge() != battleroll) {
-				damageDone = (playeratk - en.getDef());
-				en.setHP(en.getHP() - damageDone);
-				std::cout << "You were faster! You've done " << damageDone << " damage." << std::endl;
-			}
-			else {
-				std::cout << "You're attack was dodged" << std::endl;
-			}
-
-			//DISPLAY CURRENT ROUND DATA
-			std::cout << "\n***** ROUND: " << currentRound << "*****" << std::endl;
-			std::cout << pl.getName() << " current HP: " << pl.getHP() << std::endl;
-			std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
-			std::cout << "********************************" << std::endl;
-			currentRound++;
-		}
+	if (p1.getDodge() != battleroll) {
+		damageDone = (enemyatk - p1.getDef());
+		p1.setHP(p1.getHP() - damageDone);
+		std::cout << "You were too slow. You've received " << damageDone << " damage." << std::endl;
 	}
 	else {
-		std::cout << "Your speed is greater" << std::endl;
-		while ((pl.getHP() > 0) && (en.getHP()>0)) {
-			playeratk = pl.attack();
-			//enemy attempts to dodge
-			battleroll = rand() % 6 + 1;
-			if (en.getDodge() != battleroll) {
-				en.setHP(en.getHP() - (playeratk - en.getDef()));
-			}
-			else {
-				std::cout << "You're attack was dodged" << std::endl;
-			}
-			enemyatk = en.attack();
-			//player attempts to dodge
-			battleroll = rand() % 6 + 1;
-			if (pl.getDodge() != battleroll) {
-				pl.setHP(pl.getHP() - (enemyatk - pl.getDef()));
-			}
-			else {
-				std::cout << "You've dodged the attack" << std::endl;
-			}
-			//DISPLAY CURRENT ROUND DATA
-			std::cout << "***** ROUND: " << currentRound << "*****" << std::endl;
-			std::cout << pl.getName() << " current HP: " << pl.getHP() << std::endl;
-			std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
-			std::cout << "********************************" << std::endl;
-		}
+		std::cout << "You've dodged the attack" << std::endl;
 	}
+
+}
+
+void PlayerAttacks(Character& p1, Character& en) {
+	int playeratk = p1.attack();
+	//player attempts to dodge
+	int battleroll = rand() % 6 + 1;
+	int damageDone = 0;
+	//enemy attempts to dodge
+	battleroll = rand() % 6 + 1;
+	if (en.getDodge() != battleroll) {
+		damageDone = (playeratk - en.getDef());
+		en.setHP(en.getHP() - damageDone);
+		std::cout << "You're attack strikes true. " << damageDone << " damage dealt. " << std::endl;
+	}
+	else {
+		std::cout << "You're attack was dodged" << std::endl;
+	}
+}
+
+void DisplayRoundData(Character& p1, Character& en, int roundNum) {
+	//DISPLAY CURRENT ROUND DATA
+	std::cout << "***** ROUND: " << roundNum << "*****" << std::endl;
+	std::cout << p1.getName() << " current HP: " << p1.getHP() << std::endl;
+	std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
+	std::cout << "********************************" << std::endl;
+}
+bool Map::DungeonBattle(Player& pl, Enemy en) {
+	/*int battleroll = 0;
+	int enemyatk = 0;
+	int damageDone = 0;
+	int playeratk = 0;*/
+	int currentRound = 1;
+	srand(time(NULL));
+
+	std::cout << (pl.getSpd() <= en.getSpd() ? en.getName() + " is faster!" : "Your speed is greater") << std::endl;
+
+	while ((pl.getHP() > 0) && (en.getHP() > 0)) {
+		if (pl.getSpd() <= en.getSpd()) {
+			// Enemy attacks first
+			EnemyAttacks(pl, en);
+			PlayerAttacks(pl, en);
+		}
+		else {
+			// Player attacks first
+			PlayerAttacks(pl, en);
+			EnemyAttacks(pl, en);
+		}
+
+		DisplayRoundData(pl, en, currentRound);
+		currentRound++;
+	}
+	//if (pl.getSpd() <= en.getSpd()) {
+	//	std::cout << en.getName() << " is faster!" << std::endl;
+	//	while ((pl.getHP() > 0) && (en.getHP()>0)) {
+	//		enemyatk = en.attack();
+	//		//player attempts to dodge
+	//		battleroll = rand() % 6 + 1;
+	//		if (pl.getDodge() != battleroll) {
+	//			damageDone = (enemyatk - pl.getDef());
+	//			pl.setHP(pl.getHP() - damageDone);
+	//			std::cout << "You were too slow. You've received " << damageDone << " damage." << std::endl;
+	//		}
+	//		else {
+	//			std::cout << "You've dodged the attack" << std::endl;
+	//		}
+	//		playeratk = pl.attack();
+	//		//enemy attempts to dodge
+	//		battleroll = rand() % 6 + 1;
+	//		if (en.getDodge() != battleroll) {
+	//			damageDone = (playeratk - en.getDef());
+	//			en.setHP(en.getHP() - damageDone);
+	//			std::cout << "You were faster! You've done " << damageDone << " damage." << std::endl;
+	//		}
+	//		else {
+	//			std::cout << "You're attack was dodged" << std::endl;
+	//		}
+
+	//		//DISPLAY CURRENT ROUND DATA
+	//		std::cout << "\n***** ROUND: " << currentRound << "*****" << std::endl;
+	//		std::cout << pl.getName() << " current HP: " << pl.getHP() << std::endl;
+	//		std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
+	//		std::cout << "********************************" << std::endl;
+	//		currentRound++;
+	//	}
+	//}
+	//else {
+	//	std::cout << "Your speed is greater" << std::endl;
+	//	while ((pl.getHP() > 0) && (en.getHP()>0)) {
+	//		playeratk = pl.attack();
+	//		//enemy attempts to dodge
+	//		battleroll = rand() % 6 + 1;
+	//		if (en.getDodge() != battleroll) {
+	//			en.setHP(en.getHP() - (playeratk - en.getDef()));
+	//		}
+	//		else {
+	//			std::cout << "You're attack was dodged" << std::endl;
+	//		}
+	//		enemyatk = en.attack();
+	//		//player attempts to dodge
+	//		battleroll = rand() % 6 + 1;
+	//		if (pl.getDodge() != battleroll) {
+	//			pl.setHP(pl.getHP() - (enemyatk - pl.getDef()));
+	//		}
+	//		else {
+	//			std::cout << "You've dodged the attack" << std::endl;
+	//		}
+	//		//DISPLAY CURRENT ROUND DATA
+	//		std::cout << "***** ROUND: " << currentRound << "*****" << std::endl;
+	//		std::cout << pl.getName() << " current HP: " << pl.getHP() << std::endl;
+	//		std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
+	//		std::cout << "********************************" << std::endl;
+
+	//		currentRound++;
+	//	}
+	//}
 	if (pl.getHP() > 0) {
 		std::cout << "You've triumphed over " << en.getName() << std::endl;
 		return true;
@@ -443,12 +503,11 @@ void Map::makeMove(int currLocation) {
 
 void Map::loadPathway(int n) {//a list of which path has an enemy present
 	srand(time(NULL));
-	int reachThreeCount = 0;
+	int reachThreeCount = 1;
 	for (int i = 1; i <= n; ++i) {
 		bool hasEnemy = rand() % 2;
-		if (reachThreeCount == 3) {
+		if (reachThreeCount % 3==0) {
 			hasEnemy = true;
-			reachThreeCount = 0;
 		}
 		pathwayy.insert(std::pair<int, bool>(i, hasEnemy));
 		if (!hasEnemy) {
