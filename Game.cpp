@@ -452,70 +452,7 @@ bool Map::DungeonBattle(Player& pl, Enemy en) {
 		DisplayRoundData(pl, en, currentRound);
 		currentRound++;
 	}
-	//if (pl.getSpd() <= en.getSpd()) {
-	//	std::cout << en.getName() << " is faster!" << std::endl;
-	//	while ((pl.getHP() > 0) && (en.getHP()>0)) {
-	//		enemyatk = en.attack();
-	//		//player attempts to dodge
-	//		battleroll = rand() % 6 + 1;
-	//		if (pl.getDodge() != battleroll) {
-	//			damageDone = (enemyatk - pl.getDef());
-	//			pl.setHP(pl.getHP() - damageDone);
-	//			std::cout << "You were too slow. You've received " << damageDone << " damage." << std::endl;
-	//		}
-	//		else {
-	//			std::cout << "You've dodged the attack" << std::endl;
-	//		}
-	//		playeratk = pl.attack();
-	//		//enemy attempts to dodge
-	//		battleroll = rand() % 6 + 1;
-	//		if (en.getDodge() != battleroll) {
-	//			damageDone = (playeratk - en.getDef());
-	//			en.setHP(en.getHP() - damageDone);
-	//			std::cout << "You were faster! You've done " << damageDone << " damage." << std::endl;
-	//		}
-	//		else {
-	//			std::cout << "You're attack was dodged" << std::endl;
-	//		}
 
-	//		//DISPLAY CURRENT ROUND DATA
-	//		std::cout << "\n***** ROUND: " << currentRound << "*****" << std::endl;
-	//		std::cout << pl.getName() << " current HP: " << pl.getHP() << std::endl;
-	//		std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
-	//		std::cout << "********************************" << std::endl;
-	//		currentRound++;
-	//	}
-	//}
-	//else {
-	//	std::cout << "Your speed is greater" << std::endl;
-	//	while ((pl.getHP() > 0) && (en.getHP()>0)) {
-	//		playeratk = pl.attack();
-	//		//enemy attempts to dodge
-	//		battleroll = rand() % 6 + 1;
-	//		if (en.getDodge() != battleroll) {
-	//			en.setHP(en.getHP() - (playeratk - en.getDef()));
-	//		}
-	//		else {
-	//			std::cout << "You're attack was dodged" << std::endl;
-	//		}
-	//		enemyatk = en.attack();
-	//		//player attempts to dodge
-	//		battleroll = rand() % 6 + 1;
-	//		if (pl.getDodge() != battleroll) {
-	//			pl.setHP(pl.getHP() - (enemyatk - pl.getDef()));
-	//		}
-	//		else {
-	//			std::cout << "You've dodged the attack" << std::endl;
-	//		}
-	//		//DISPLAY CURRENT ROUND DATA
-	//		std::cout << "***** ROUND: " << currentRound << "*****" << std::endl;
-	//		std::cout << pl.getName() << " current HP: " << pl.getHP() << std::endl;
-	//		std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
-	//		std::cout << "********************************" << std::endl;
-
-	//		currentRound++;
-	//	}
-	//}
 	if (pl.getHP() > 0) {
 		std::cout << "You've triumphed over " << en.getName() << std::endl;
 		return true;
