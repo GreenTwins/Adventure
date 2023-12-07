@@ -43,6 +43,7 @@ public:
 	int availableMoves(int a);
 	void makeMove(int currLocation);
 	void loadMapData();
+	bool bossBattle(int loc, int dunNum, Player& p1);
 	bool DungeonBattle(Player& pl, Enemy en);
 };
 
@@ -78,7 +79,7 @@ public:
 	void loadPlayer();//will need something in the input
 	//enter map-> map holds the dungeons and expects a player and a list of enemies as its input
 	bool loadGame();
-	void loadEnemies(int loc, std::vector<Enemy>&enemyList);
+	void loadEnemies(int loc, int dunNum, std::vector<Enemy>&enemyList);
 	bool PrePlay();
 	bool play(Map& currentMap);
 	void getLocationName(int loc);

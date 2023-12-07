@@ -23,6 +23,9 @@ theres a recursive call which is tied to a while loop for a turn by turn battle-
   //copy boss
   INSERT INTO Boss (dungeonLocation, BossName, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc)
 VALUES(1, 'placeHolder', 50, 30, 5,4,4, 2, 5, 10, 4, 6, 2, 3, 'atk1','atk2','atk3','atk4','atk5','atk6');
+
+
+12/6 Possible solution to subsrcipt error-> place all fights in free space mem (dynamic) and clear after each fight. Possible use for smart pointers
 */
 int main() {
 	

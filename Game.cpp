@@ -53,10 +53,10 @@ void Game::getLocationName(int loc) {
 
 }
 
-void Game::loadEnemies(int loc, std::vector<Enemy>&e) {
+void Game::loadEnemies(int loc, int dunNum, std::vector<Enemy>&e) {
 	try {
 		SQLCONN &enemyGrab=SQLCONN::createInstance();
-		enemyGrab.getEnemies(loc, e);
+		enemyGrab.getEnemies(loc, dunNum, e);
 		//enemyGrab.disconnect();
 		}
 	catch (bool result) {
@@ -135,7 +135,7 @@ bool Game::PrePlay() {
 		getLocationName(1);//starting new
 		Map newMap;
 		newMap.createPaths(1);
-		Game::getinstance().loadEnemies(1, Game::enemyList);
+		Game::getinstance().loadEnemies(1, 1,Game::enemyList);
 		//std::cout << Game::getinstance().enemyList.size();
 		if (play(newMap)) {
 			//go back to island
@@ -159,8 +159,11 @@ bool Game::play(Map& currentMap) {
 	currentMap.makeMove(1);
 	
 	if (playerN.getHP() > 0) {
-		std::cout << "reached the end of the map" << std::endl;
-		return true;
+		std::cout << "You've entered the Boss room" << std::endl;
+		if (currentMap.bossBattle(1, 1, playerN)) {
+			return true;
+		}
+		return false;
 	}
 	std::cout << "You've died" << std::endl;
 	return false;
@@ -367,12 +370,62 @@ void PlayerAttacks(Character& p1, Character& en) {
 	}
 }
 
+void BossAttacks(Character& p1, Boss& boss) {
+	//this will later hold special attacks
+	int bossatk = boss.attack();
+	//player attempts to dodge
+	int battleroll = rand() % 6 + 1;
+	int damageDone = 0;
+	if (p1.getDodge() != battleroll) {
+		damageDone = (bossatk - p1.getDef());
+		p1.setHP(p1.getHP() - damageDone);
+		std::cout << "You were too slow. You've received " << damageDone << " damage." << std::endl;
+	}
+	else {
+		std::cout << "You've dodged the attack" << std::endl;
+	}
+}
 void DisplayRoundData(Character& p1, Character& en, int roundNum) {
 	//DISPLAY CURRENT ROUND DATA
 	std::cout << "***** ROUND: " << roundNum << "*****" << std::endl;
 	std::cout << p1.getName() << " current HP: " << p1.getHP() << std::endl;
 	std::cout << en.getName() << " current HP: " << en.getHP() << std::endl;
 	std::cout << "********************************" << std::endl;
+}
+bool Map::bossBattle(int loc,int dunNum, Player& p1) {
+
+	Boss newBoss(loc);
+	SQLCONN& bossload = SQLCONN::createInstance();
+	if (!bossload.getBoss(loc, dunNum, newBoss)) {
+		std::cout << "Failed to load boss" << std::endl;
+		return false;
+	}
+	int currentRound = 1;
+	srand(time(NULL));
+
+	std::cout << (p1.getSpd() <= newBoss.getSpd() ? newBoss.getName() + " is faster!" : "Your speed is greater") << std::endl;
+
+	while ((p1.getHP() > 0) && (newBoss.getHP() > 0)) {
+		if (p1.getSpd() <= newBoss.getSpd()) {
+			// Enemy attacks first
+			BossAttacks(p1, newBoss);
+			PlayerAttacks(p1, newBoss);
+		}
+		else {
+			// Player attacks first
+			PlayerAttacks(p1, newBoss);
+			BossAttacks(p1, newBoss);
+		}
+
+		DisplayRoundData(p1, newBoss, currentRound);
+		currentRound++;
+	}
+	if (p1.getHP() > 0) {
+		std::cout << "You've triumphed over " << newBoss.getName() << std::endl;
+		return true;
+	}
+	std::cout << "You've fallen in battle" << std::endl;
+	return false;
 }
 bool Map::DungeonBattle(Player& pl, Enemy en) {
 	/*int battleroll = 0;

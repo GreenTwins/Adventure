@@ -31,7 +31,8 @@ public:
 	//display all chars
 	bool displayNames();
 	//gather all enemies from sql
-	void getEnemies(int loc, std::vector<Enemy>&e);
+	void getEnemies(int loc, int dunNum, std::vector<Enemy>&e);
+	bool getBoss(int loc, int dunNum, Boss& b);
 	
 
 };

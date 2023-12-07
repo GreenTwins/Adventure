@@ -39,3 +39,42 @@ void Enemy::displayStats(bool Eloop)const {
 	std::cout << "Mana:     " << getMP() << std::endl;
 	std::cout << "---------------------------------------------" << std::endl;
 }
+
+Boss::Boss() {}
+
+Boss::Boss(int dunNum) : Character{ dunNum } {
+	if (dunNum <= 4) {
+		numofATK = 6;
+	}
+	else if (dunNum > 4 && dunNum <= 6) {
+		numofATK = 8;
+	}
+	else {
+		numofATK = 9;
+	}
+}
+int Boss::attack() {
+	int roll_Value = rand() % (numofATK)+1;
+	if (roll_Value > 0 && roll_Value <= numofATK) {
+		auto it = Character::attacks.begin();
+		std::advance(it, roll_Value - 1);
+		std::cout << Boss::getName() << " uses: " << it->first << std::endl;
+		return (Boss::getStr() + it->second);
+	}
+	else {
+		std::cout << "Access error" << std::endl;
+	}
+	return 0;
+}
+
+void Boss::displayStats(bool elo)const {
+	std::cout << "BOSS: " << getName() << " STATS" << std::endl;
+	std::cout.width(5);
+	std::cout << "Strength: " << getStr() << std::endl;
+	std::cout << "Defense:  " << getDef() << std::endl;
+	std::cout << "Speed     " << getSpd() << std::endl;
+	std::cout << "Dodge     " << getDodge() << std::endl;
+	std::cout << "Health:   " << getHP() << std::endl;
+	std::cout << "Mana:     " << getMP() << std::endl;
+	std::cout << "---------------------------------------------" << std::endl;
+}
