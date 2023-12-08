@@ -538,7 +538,7 @@ GAME CONSOLE CLASS init,cleaner, getters and setters
 
 *******************************************************************************************************/
 
-GameConsole::GameConsole(Player p) {
+GameConsole::GameConsole() {
 
 }
 GameConsole::~GameConsole() {}
@@ -565,7 +565,8 @@ void GameConsole::options() {
 	std::cout << "3.) Go to Inventory" << std::endl;
 	std::cout << "4.) Go to Store" << std::endl;
 	std::cout << "5.) Display stats" << std::endl;
-	std::cout << "6.) Back to Main Menu" << std::endl;
+	std::cout << "6.) Save Game" << std::endl;
+	std::cout << "7.) Back to Main Menu" << std::endl;
 
 	std::cout << "Which event do you choose to complete?: ";
 	std::cin >> option;
@@ -585,6 +586,9 @@ void GameConsole::options() {
 		display();
 		break;
 	case 6:
+		saveState();
+		break;
+	case 7:
 		backtoMain();
 		break;
 	default:
@@ -595,4 +599,22 @@ void GameConsole::options() {
 void GameConsole::backtoMain() {
 	//call main menu instance
 	MainMenu::getInstance();
+}
+
+void GameConsole::saveState() {
+	int choice = 0;
+	std::cout << "How would you like to save your data?: " << std::endl;
+	std::cout << " 1.) Save to database " << std::endl;
+	std::cout << " 2.) Save locally " << std::endl;
+	std::cin >> choice;
+	switch (choice) {
+	case 1:
+		SQLCONN::createInstance().sqlSave();
+		break;
+	case 2:
+		break;
+	default:
+		std::cerr << "Please choose an appropriate option from above" << std::endl;
+		break;
+	}
 }

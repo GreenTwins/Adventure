@@ -137,7 +137,7 @@ missions completed and fulfilled requirements to unlock additional locations
 *******************************************************************************************************/
 class GameConsole {
 public:
-	GameConsole(Player p );
+	GameConsole();
 	~GameConsole();
 	void display()const;
 	void options();
@@ -147,6 +147,7 @@ public:
 	void checkInventory();
 	void backtoMain();
 	void showStats()const;
+	void saveState();
 };
 
 #endif

@@ -41,7 +41,15 @@ int main() {
 	if (!mainMenu.display()) {
 		return -1;//failed
 	}
+	//start official game
+
+	GameConsole newGame;
+	newGame.display();
+	newGame.options();
+
+
+	//Game::getinstance().playerN.displayStats(true);
 	//all relevant data loaded/ completed. Can go to console
-	std::cout << "We are now inside the full game" << std::endl;
+	//std::cout << "We are now inside the full game" << std::endl;
 	return 0;
 }

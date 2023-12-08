@@ -33,7 +33,7 @@ public:
 	//gather all enemies from sql
 	void getEnemies(int loc, int dunNum, std::vector<Enemy>&e);
 	bool getBoss(int loc, int dunNum, Boss& b);
-	
+	bool sqlSave();
 
 };
 
