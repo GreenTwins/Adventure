@@ -8,6 +8,7 @@ class Player : public Character {
 	int numofAtks = 6;
 	int lvl{ 1 };
 	bool LoadedInfo = false;
+	int MAX_HP = 0;
 public:
 	Player();
 	Player(const Player& o) = delete;
@@ -15,6 +16,7 @@ public:
 	virtual ~Player() {}
 	int getLvl()const;
 	void setlvl(int lvl);
+	void refillHP();
 	//ATK
 	void createATK(int num);
 	int attack()override;

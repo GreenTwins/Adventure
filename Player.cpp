@@ -7,6 +7,7 @@
 Player::Player() {
 }
 Player::Player(std::string& s) :Character{ s } {
+	MAX_HP = 100;
 	CreateStats();
 	createATK(6);
 	displayStats(1);
@@ -17,6 +18,9 @@ int Player::getLvl()const {
 }
 void Player::setlvl(int lvl) {
 	lvl = lvl;//looks wild huh?
+}
+void Player::refillHP() {
+	setHP(MAX_HP);
 }
 void Player::createATK(int num) {
 	std::string atk;

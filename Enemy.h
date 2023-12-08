@@ -6,6 +6,7 @@
 class Enemy : public Character {
 public:
 	int numofATK{0};
+	int lvl = 0;
 	Enemy();
 	Enemy(int lvl);
 	virtual ~Enemy() {}

@@ -4,6 +4,7 @@
 #include "LOCALSTORAGE.h"
 #include <random>
 #include <string>
+#include <memory>
 
 /******************************************************************************************************
 GAME CLASS init,cleaner, getters and setters
@@ -13,7 +14,8 @@ GAME CLASS init,cleaner, getters and setters
 Game::Game() {
 	/*MainMenu& master = MainMenu::getInstance();
 	master.display();*/
-
+	enemyList.clear();
+	locations.clear();
 }
 Game::~Game() {
 	std::cout << "Game instance deleted" << std::endl;
@@ -131,10 +133,12 @@ bool Game::PrePlay() {
 	bool success = false;
 	char option;
 	
+	currentDunLvl = 1;
+	currentDunNum = 1;
 	while (tryAgain) {
 		getLocationName(1);//starting new
 		Map newMap;
-		newMap.createPaths(1);
+		newMap.createPaths(currentDunLvl);
 		Game::getinstance().loadEnemies(1, 1,Game::enemyList);
 		//std::cout << Game::getinstance().enemyList.size();
 		if (play(newMap)) {
@@ -149,6 +153,7 @@ bool Game::PrePlay() {
 			if (option == 'Q' || option == 'q') {
 				tryAgain = false;
 			}
+			Game::getinstance().playerN.refillHP();
 		}
 	}
 	return success;
@@ -156,6 +161,8 @@ bool Game::PrePlay() {
 	
 
 bool Game::play(Map& currentMap) {
+	getinstance().currentDunLvl = currentMap.currentDungeonLvl;
+	getinstance().currentDunNum = currentMap.currentDungeonNum;
 	currentMap.makeMove(1);
 	
 	if (playerN.getHP() > 0) {
@@ -427,38 +434,35 @@ bool Map::bossBattle(int loc,int dunNum, Player& p1) {
 	std::cout << "You've fallen in battle" << std::endl;
 	return false;
 }
-bool Map::DungeonBattle(Player& pl, Enemy en) {
-	/*int battleroll = 0;
-	int enemyatk = 0;
-	int damageDone = 0;
-	int playeratk = 0;*/
+std::unique_ptr<bool>Map::DungeonBattle(Player& pl, std::unique_ptr<Enemy>& en) {
+
 	int currentRound = 1;
 	srand(time(NULL));
 
-	std::cout << (pl.getSpd() <= en.getSpd() ? en.getName() + " is faster!" : "Your speed is greater") << std::endl;
+	std::cout << (pl.getSpd() <= en->getSpd() ? en->getName() + " is faster!" : "Your speed is greater") << std::endl;
 
-	while ((pl.getHP() > 0) && (en.getHP() > 0)) {
-		if (pl.getSpd() <= en.getSpd()) {
+	while ((pl.getHP() > 0) && (en->getHP() > 0)) {
+		if (pl.getSpd() <= en->getSpd()) {
 			// Enemy attacks first
-			EnemyAttacks(pl, en);
-			PlayerAttacks(pl, en);
+			EnemyAttacks(pl, *en);
+			PlayerAttacks(pl, *en);
 		}
 		else {
 			// Player attacks first
-			PlayerAttacks(pl, en);
-			EnemyAttacks(pl, en);
+			PlayerAttacks(pl, *en);
+			EnemyAttacks(pl, *en);
 		}
 
-		DisplayRoundData(pl, en, currentRound);
+		DisplayRoundData(pl, *en, currentRound);
 		currentRound++;
 	}
 
 	if (pl.getHP() > 0) {
-		std::cout << "You've triumphed over " << en.getName() << std::endl;
-		return true;
+		std::cout << "You've triumphed over " << en->getName() << std::endl;
+		return std::make_unique<bool>(true);
 	}
 	std::cout << "You've fallen in battle" << std::endl;
-	return false;
+	return std::make_unique<bool>(false);
 }
 int Map::availableMoves(int a) {
 	int movement{ 0 };
@@ -467,9 +471,24 @@ int Map::availableMoves(int a) {
 		//std::cout << "There is an enemy in the room" << std::endl;
 		int listsize = Game::getinstance().enemyList.size();
 		int randomEnemy = rand() % listsize+1;
-		Enemy newEnemy = Game::getinstance().enemyList[randomEnemy];
-		std::cout << newEnemy.getName()<<" has appeared for battle" << std::endl;
-		if (!DungeonBattle(Game::getinstance().playerN, newEnemy)) {
+		
+		Enemy newEnemy(currentDungeonNum);
+		if (randomEnemy >=listsize) {
+			newEnemy = Game::getinstance().enemyList[randomEnemy - 1];
+		}
+		else {
+			newEnemy = Game::getinstance().enemyList[randomEnemy];
+		}
+		
+		
+
+		//std::unique_ptr<Player> playerPtr = std::make_unique<Player>(Game::getinstance().playerN);
+		std::unique_ptr<Enemy> newEnemyPtr = std::make_unique<Enemy>(newEnemy);
+		std::unique_ptr<bool> battleResultPtr = DungeonBattle(Game::getinstance().playerN, newEnemyPtr);
+
+		//std::cout << newEnemy.getName()<<" has appeared for battle" << std::endl;
+		
+		if (!(*battleResultPtr)) {
 			return -1;
 		}
 	}
@@ -485,6 +504,9 @@ int Map::availableMoves(int a) {
 }
 void Map::makeMove(int currLocation) {
 	if (currLocation == end) {
+		return;
+	}
+	if (currLocation == -1) {
 		return;
 	}
 	makeMove(availableMoves(currLocation));

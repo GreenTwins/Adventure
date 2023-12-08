@@ -26,6 +26,10 @@ VALUES(1, 'placeHolder', 50, 30, 5,4,4, 2, 5, 10, 4, 6, 2, 3, 'atk1','atk2','atk
 
 
 12/6 Possible solution to subsrcipt error-> place all fights in free space mem (dynamic) and clear after each fight. Possible use for smart pointers
+
+12/7 All battle completed and errors seem to have been avoided. Battles brought into dynamic mem. Main issue was with the calling of ran() to get a random enemy from enemyList-> rand() required a "+1" to include the last
+number being searched for- this at times would then be +1 more than the given vector holding the enemies since its 0 based. Created a logic statement to validate for size discrepancy. Debugger is truly mans best friend 
+Primary walk through working, now need to weave it into gameConsole to trigger the games Main Menu [save data, game store, travel, available dungeons]
 */
 int main() {
 	

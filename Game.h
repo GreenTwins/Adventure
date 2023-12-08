@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <memory>
 
 #pragma once
 #ifndef _MAP_H_
@@ -26,7 +27,8 @@ public:
 	const int LARGE_MAP = 12;
 	int data;
 	int beg, end;
-
+	int currentDungeonLvl = 0;
+	int currentDungeonNum = 0;
 	bool isBossPresent = false;
 	std::map<int, std::list<int>>mapp;//provides the moves
 	//std::vector<Room>pathway;
@@ -44,7 +46,7 @@ public:
 	void makeMove(int currLocation);
 	void loadMapData();
 	bool bossBattle(int loc, int dunNum, Player& p1);
-	bool DungeonBattle(Player& pl, Enemy en);
+	std::unique_ptr<bool> DungeonBattle(Player& pl, std::unique_ptr<Enemy>& en);
 };
 
 #endif
@@ -70,6 +72,8 @@ class Game {
 	bool onserver = false;
 	bool onlocal = false;
 public:
+	int currentDunNum = 0;
+	int currentDunLvl = 0;
 	Player playerN;
 	std::vector<std::map<int, int>>locations;//first int has mapLocation and 2nd is the num of dungeons at that location. The location also determines the size of the map
 	std::vector<Enemy>enemyList;//this gets loaded based on the location
