@@ -71,7 +71,7 @@ GAME CLASS player association
 *******************************************************************************************************/
 void Game::createPlayer(std::string n) {
 	playerN=Player::Player(n);
-
+	newChar = true;
 }
 /******************************************************************************************************
 GAME CLASS game loading and instances
@@ -86,7 +86,6 @@ bool Game::loadGame() {
 	std::cout << "1.) Server" << "\t" << "2.) Local Storage" << std::endl;
 	std::cin >> choice;
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');//clear anything remaining in the stream so we can get playername data
-	Player newplayer;
 	switch (choice) {
 	case 1: 
 	{
@@ -96,12 +95,20 @@ bool Game::loadGame() {
 			//gather avail chars in dB & display
 			if (connection.displayNames()) {
 				fromSQL(true);
-				std::cout << "\n Type the name of the character you want to load: ";
-				std::getline(std::cin, playername);
-				std::cout << "cool" << std::endl;
+				int choice;
+				std::cout << "\n Which character would you like to load?:  ";
+				std::cin >> choice;
+				if (choice <= connection.playerList.size()) {
+					std::cout << connection.playerList[choice - 1] << std::endl;
+					playerN.changeName(connection.playerList[choice - 1]);
+					conn_success = true;
+				}
+				else {
+					std::cout << "You didnt choose a given number" << std::endl;
+				}
 				//let user choose char
 				//loadPlayer();
-				conn_success = true;
+				
 			}
 			else {
 				std::cout << "There is no data to load" << std::endl;
@@ -226,6 +233,9 @@ bool MainMenu::display()const {
 		  break;
 	case 2: {
 		if (!gameInstance.loadGame()) {
+			GoToConsole = false;
+		}
+		if (!SQLCONN::createInstance().loadPlayerData(gameInstance.playerN.getName())) {
 			GoToConsole = false;
 		}
 	}
@@ -560,45 +570,52 @@ void GameConsole::display()const {
 }
 void GameConsole::options() {
 	int option;
-	std::cout << "1.) Travel" << std::endl;
-	std::cout << "2.) Enter Mission" << std::endl;
-	std::cout << "3.) Go to Inventory" << std::endl;
-	std::cout << "4.) Go to Store" << std::endl;
-	std::cout << "5.) Display stats" << std::endl;
-	std::cout << "6.) Save Game" << std::endl;
-	std::cout << "7.) Back to Main Menu" << std::endl;
+	bool displayOptions = true;
 
-	std::cout << "Which event do you choose to complete?: ";
-	std::cin >> option;
+	while (displayOptions) {
+		std::cout << "1.) Travel" << std::endl;
+		std::cout << "2.) Enter Mission" << std::endl;
+		std::cout << "3.) Go to Inventory" << std::endl;
+		std::cout << "4.) Go to Store" << std::endl;
+		std::cout << "5.) Display stats" << std::endl;
+		std::cout << "6.) Save Game" << std::endl;
+		std::cout << "7.) Back to Main Menu" << std::endl;
+		std::cout << "8.) Quit" << std::endl;
 
-	switch (option) {
-	case 1:
-		//shows available islands
-		break;
-	case 2:
-		//shows islands quests
-		break;
-	case 3:
-		break;
-	case 4:
-		break;
-	case 5:
-		display();
-		break;
-	case 6:
-		saveState();
-		break;
-	case 7:
-		backtoMain();
-		break;
-	default:
-		std::cerr << "Please choose an appropriate option from above" << std::endl;
-		break;
+		std::cout << "Which event do you choose to complete?: ";
+		std::cin >> option;
+
+		switch (option) {
+		case 1:
+			//shows available islands
+			break;
+		case 2:
+			//shows islands quests
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			display();
+			break;
+		case 6:
+			saveState();
+			break;
+		case 7:
+			backtoMain();
+			break;
+		case 8: 
+			return;
+		default:
+			std::cerr << "Please choose an appropriate option from above" << std::endl;
+			break;
+		}
 	}
 }
 void GameConsole::backtoMain() {
 	//call main menu instance
-	MainMenu::getInstance();
+	MainMenu::getInstance().display();
 }
 
 void GameConsole::saveState() {
@@ -609,9 +626,12 @@ void GameConsole::saveState() {
 	std::cin >> choice;
 	switch (choice) {
 	case 1:
-		SQLCONN::createInstance().sqlSave();
+		if (!SQLCONN::createInstance().sqlSave()) {
+			std::cout << "failed to save data" << std::endl;
+		}
 		break;
 	case 2:
+		savedData::getInstance().uploadData(Game::getinstance().playerN);
 		break;
 	default:
 		std::cerr << "Please choose an appropriate option from above" << std::endl;

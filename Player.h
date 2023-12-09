@@ -9,6 +9,7 @@ class Player : public Character {
 	int lvl{ 1 };
 	bool LoadedInfo = false;
 	int MAX_HP = 0;
+	int exp = 0;
 public:
 	Player();
 	Player(const Player& o) = delete;
@@ -22,6 +23,18 @@ public:
 	int attack()override;
 	virtual void displayStats(bool Eloop) const override;
 	void CreateStats();
+	bool can_level_up();
+	//EXP
+	void set_EXP(int a);
+	int getEXP()const;
+	void increaseHealth(int lvl);
+	void increaseStats();
+	std::pair<std::string, int>attack1;
+	std::pair<std::string, int>attack2;
+	std::pair<std::string, int>attack3;
+	std::pair<std::string, int>attack4;
+	std::pair<std::string, int>attack5;
+	std::pair<std::string, int>attack6;
 };
 
 

@@ -71,9 +71,11 @@ class Game {
 	Game& operator=(const Game&) = delete;
 	bool onserver = false;
 	bool onlocal = false;
+	
 public:
 	int currentDunNum = 0;
 	int currentDunLvl = 0;
+	bool newChar = false;
 	Player playerN;
 	std::vector<std::map<int, int>>locations;//first int has mapLocation and 2nd is the num of dungeons at that location. The location also determines the size of the map
 	std::vector<Enemy>enemyList;//this gets loaded based on the location

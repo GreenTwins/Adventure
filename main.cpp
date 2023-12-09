@@ -31,6 +31,17 @@ VALUES(1, 'placeHolder', 50, 30, 5,4,4, 2, 5, 10, 4, 6, 2, 3, 'atk1','atk2','atk
 number being searched for- this at times would then be +1 more than the given vector holding the enemies since its 0 based. Created a logic statement to validate for size discrepancy. Debugger is truly mans best friend 
 Primary walk through working, now need to weave it into gameConsole to trigger the games Main Menu [save data, game store, travel, available dungeons]
 */
+/*
+
+SET UP FOR 
+
+Enter Mission-> SQL LOAD (Map#, # of dun, loc #, dun names) -> gives list of missions based on map # and loc #
+
+Inventory-> Linked to player load
+
+Store-> map#, loc#
+
+*/
 int main() {
 	
 	
@@ -42,7 +53,8 @@ int main() {
 		return -1;//failed
 	}
 	//start official game
-
+	std::cout << Game::getinstance().playerN.getName() << std::endl;
+	Game::getinstance().playerN.displayStats(true);
 	GameConsole newGame;
 	newGame.display();
 	newGame.options();

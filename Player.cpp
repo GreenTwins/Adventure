@@ -11,7 +11,7 @@ Player::Player(std::string& s) :Character{ s } {
 	CreateStats();
 	createATK(6);
 	displayStats(1);
-	
+	set_EXP(0);
 }
 int Player::getLvl()const {
 	return lvl;
@@ -21,6 +21,31 @@ void Player::setlvl(int lvl) {
 }
 void Player::refillHP() {
 	setHP(MAX_HP);
+}
+void Player::increaseHealth(int lvl) {
+	if (lvl == 1) {
+		MAX_HP = 150;
+		setHP(MAX_HP);
+	}
+	displayStats(true);
+}
+void Player::increaseStats() {
+	srand(time(NULL));
+	int strDice = rand() % 6 + 1;
+	setStr(getStr() + strDice);
+	int defDice = rand() % 6 + 1;
+	setDef(getDef() + defDice);
+	int spdDice = rand() % 6 + 1;
+	setSpd(getSpd() + spdDice);
+
+}
+bool Player::can_level_up() {
+	if (getEXP() > 150) {
+		increaseStats();
+		increaseHealth(getLvl());
+		return true;
+	}
+	return false;
 }
 void Player::createATK(int num) {
 	std::string atk;
@@ -103,4 +128,10 @@ void Player::CreateStats() {
 		}
 
 	}
+}
+void Player::set_EXP(int moreexp) {
+	exp = (getEXP() + moreexp);
+}
+int Player::getEXP()const {
+	return exp;
 }

@@ -29,6 +29,35 @@ savedData::savedData() {
 	}
 	std::cout << "files created" << std::endl;
 }
+void savedData::uploadData(const Player& p) {
+	std::ofstream filename("save_character_file.txt", std::ios::out);
+
+	std::cout << "saving data..." << std::endl;
+	filename << p.location << std::endl;
+	filename << p.getName() << std::endl;
+	filename << p.getHP() << std::endl;
+	filename << p.getMP() << std::endl;
+	filename << p.getStr() << std::endl;
+	filename << p.getDef() << std::endl;
+	filename << p.getSpd() << std::endl;
+	filename << p.getDodge() << std::endl;
+	filename << p.attack1.first << std::endl;
+	filename << p.attack1.second << std::endl;
+	filename << p.attack2.first << std::endl;
+	filename << p.attack2.second << std::endl;
+	filename << p.attack3.first << std::endl;
+	filename << p.attack3.second << std::endl;
+	filename << p.attack4.first << std::endl;
+	filename << p.attack4.second << std::endl;
+	filename << p.attack5.first << std::endl;
+	filename << p.attack5.second << std::endl;
+	filename << p.attack6.first << std::endl;
+	filename << p.attack6.second << std::endl;
+
+	filename.close();
+
+	std::cout << "Data saved locally" << std::endl;
+}
 
 void savedData::loadData() {
 	std::string playerPath = "C:\\Users\\aaron\\AdventureGame\\PlayerData";
