@@ -139,15 +139,16 @@ bool Game::PrePlay() {
 	bool tryAgain = true;
 	bool success = false;
 	char option;
-	
+	std::cout << "inside preplay" << std::endl;
 	currentDunLvl = 1;
 	currentDunNum = 1;
 	while (tryAgain) {
 		getLocationName(1);//starting new
 		Map newMap;
+		std::cout << "creating paths" << std::endl;
 		newMap.createPaths(currentDunLvl);
 		Game::getinstance().loadEnemies(1, 1,Game::enemyList);
-		//std::cout << Game::getinstance().enemyList.size();
+		std::cout << Game::getinstance().enemyList.size();
 		if (play(newMap)) {
 			//go back to island
 			success = true;
@@ -264,21 +265,97 @@ MAP CLASS deterministic functions: creates maps based on certain flags and data 
 currentLocation)
 
 *******************************************************************************************************/
-void Map::createPaths(int Location) {
-	if (Location < 4) {
-		add(1, 2);
-		add(1, 4);
-		add(2, 3);
-		add(2, 6);
-		add(3, 4);
-		add(3, 6);
-		add(4, 5);
-		add(5, 7);
-		add(5, 8);
-		loadPathway(SMALL_MAP);
-		end = SMALL_MAP;
+//int 
+std::unique_ptr<int>determinenextconnectedPath(int path, int locationSize) {
+
+	std::map<int, int>& checker = Game::getinstance().nextPathTracker;
+
+	if (checker.find(path) != checker.end() && checker[path] > 3) {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> distrib(0, locationSize - 1);
+		return determinenextconnectedPath(distrib(gen), locationSize);
 	}
-	else if (Location > 4 && Location < 6) {
+
+	checker[path]++;
+	return std::make_unique<int>(path);
+
+}
+
+void Map::createPaths(int Location) {
+	int connections = 0;
+	if (Location <= 2) {
+		end = SMALL_MAP;
+		connections = 9;
+	}
+	else if (Location > 2 && Location <=4) {
+		end = MEDIUM_MAP;
+		connections = 11;
+	}
+	else if (Location > 4 && Location <= 6) {
+		end = LARGE_MAP;
+		connections = 13;
+	}
+	else {
+	}
+	int first = 0, second = 0;
+
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> distrib(1, end - 1); // Avoiding 0 as a possible value
+
+		second = distrib(gen);
+		add(1, second);
+		std::cout << "(1" << " , " << second << ")" << std::endl;
+
+		for (int i = 1; i < connections; ++i) {
+			first = distrib(gen);
+			second = distrib(gen);
+
+			while (first == 0 || first == second || mapp[first].size() > 0 && std::find(mapp[first].begin(), mapp[first].end(), second) != mapp[first].end()) {
+				first = distrib(gen);
+				second = distrib(gen);
+			}
+
+			if (first != second) {
+				if (std::find(mapp[first].begin(), mapp[first].end(), second) == mapp[first].end()) {
+					add(first, second);
+					std::cout << "(" <<first<< " , " << second << ")" << std::endl;
+				}
+			}
+			else {
+				if (first + 1 < end) {
+					if (std::find(mapp[first].begin(), mapp[first].end(), first + 1) == mapp[first].end()) {
+						add(first, first + 1);
+						Game::getinstance().nextPathTracker[first + 1]++;
+					}
+				}
+				if (std::find(mapp[first].begin(), mapp[first].end(), first - 1) == mapp[first].end()) {
+					add(first, first - 1);
+					Game::getinstance().nextPathTracker[first - 1]++;
+				}
+			}
+
+			if (std::find(mapp[first].begin(), mapp[first].end(), second) == mapp[first].end()) {
+				add(first, second);
+				std::cout << "(" << first << " , " << second << ")" << std::endl;
+			}
+		}
+
+		first = distrib(gen);
+		while (first == 0 || first == second || mapp[first].size() > 0 && std::find(mapp[first].begin(), mapp[first].end(), end) != mapp[first].end()) {
+			first = distrib(gen);
+		}
+		second = end;
+
+		if (std::find(mapp[first].begin(), mapp[first].end(), second) == mapp[first].end()) {
+			add(first, second);
+			
+		}
+		std::cout << "(" << first << " , " << second << ")" << std::endl;
+		loadPathway(SMALL_MAP);
+
+	/*else if (Location > 2 && Location < 4) {
 		add(1, 2);
 		add(1, 3);
 		add(2, 4);
@@ -309,7 +386,8 @@ void Map::createPaths(int Location) {
 		add(11, 12);
 		loadPathway(LARGE_MAP);
 		end = LARGE_MAP;
-	}
+	}*/
+	std::cout << "created!" << std::endl;
 }
 void Map::loadMapData() {
 	//locationData.insert(std::pair<int, std::list<int,int,int>(1, 3)); //first island has 3 "dungeons"
@@ -544,6 +622,11 @@ void Map::loadPathway(int n) {//a list of which path has an enemy present
 	}*/
 }
 
+
+void Map::createLocation() {
+	//make empty map w/o enemies or boss loaded but has pathways created based on current location. Push onto list to be read from in display
+
+}
 /******************************************************************************************************
 GAME CONSOLE CLASS init,cleaner, getters and setters
 
@@ -592,6 +675,7 @@ void GameConsole::options() {
 			//shows islands quests
 			break;
 		case 3:
+			//enter missions
 			break;
 		case 4:
 			break;

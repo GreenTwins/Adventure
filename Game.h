@@ -46,6 +46,7 @@ public:
 	void makeMove(int currLocation);
 	void loadMapData();
 	bool bossBattle(int loc, int dunNum, Player& p1);
+	void createLocation();
 	std::unique_ptr<bool> DungeonBattle(Player& pl, std::unique_ptr<Enemy>& en);
 };
 
@@ -77,6 +78,8 @@ public:
 	int currentDunLvl = 0;
 	bool newChar = false;
 	Player playerN;
+	std::vector<Map>maps;
+	std::map<int, int>nextPathTracker;
 	std::vector<std::map<int, int>>locations;//first int has mapLocation and 2nd is the num of dungeons at that location. The location also determines the size of the map
 	std::vector<Enemy>enemyList;//this gets loaded based on the location
 	bool GameInit = false;
@@ -93,6 +96,7 @@ public:
 	void fromSQL(bool i);
 	void fromLocal(bool i);
 	bool isLocal()const;
+	
 };
 
 

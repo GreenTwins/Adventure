@@ -46,21 +46,29 @@ int main() {
 	
 	
 
-	//Game& newGame = Game::getinstance();
 	MainMenu& mainMenu = MainMenu::getInstance();
-	//SQLCONN& newConnection = SQLCONN::createInstance();
+
 	if (!mainMenu.display()) {
 		return -1;//failed
 	}
-	//start official game
+	//////start official game
 	Game::getinstance().playerN.displayStats(true);
 	GameConsole newGame;
 	newGame.display();
 	newGame.options();
 
 
-	//Game::getinstance().playerN.displayStats(true);
-	//all relevant data loaded/ completed. Can go to console
-	//std::cout << "We are now inside the full game" << std::endl;
+	/*Game& demo = Game::getinstance();
+	std::string name;
+	std::cout << "Whats the name of the character?: ";
+	std::cin >> name;
+	demo.createPlayer(name);
+
+	std::cout << demo.playerN.getName() << std::endl;
+	if (demo.PrePlay()) {
+		std::cout << "done" << std::endl;
+	}
+	std::cout << "done but you lost" << std::endl;*/
+
 	return 0;
 }
