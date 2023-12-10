@@ -235,6 +235,7 @@ bool MainMenu::display()const {
 		if (!gameInstance.loadGame()) {
 			GoToConsole = false;
 		}
+		
 		if (!SQLCONN::createInstance().loadPlayerData(gameInstance.playerN.getName())) {
 			GoToConsole = false;
 		}
@@ -559,13 +560,11 @@ inventory
 
 *******************************************************************************************************/
 void GameConsole::display()const {
-	std::cout << "Name: " << Game::getinstance().playerN.getName() << "\t";
+	std::cout << "\n Name: " << Game::getinstance().playerN.getName() << "\t";
 	std::cout << "Level: " << Game::getinstance().playerN.getLvl() << std::endl;
 	std::cout << "Health: " << Game::getinstance().playerN.getHP() << "\t";
-	std::cout << "Current Location: " << std::endl;//get location from game
+	std::cout << "Current Location: " << Game::getinstance().playerN.location<<std::endl;
 	std::cout << "XP: " << "\t";
-	std::cout << "Current Requirement: " << std::endl;
-
 
 }
 void GameConsole::options() {

@@ -53,7 +53,6 @@ int main() {
 		return -1;//failed
 	}
 	//start official game
-	std::cout << Game::getinstance().playerN.getName() << std::endl;
 	Game::getinstance().playerN.displayStats(true);
 	GameConsole newGame;
 	newGame.display();
