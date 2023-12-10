@@ -80,14 +80,18 @@ public:
 	Player playerN;
 	std::vector<Map>maps;
 	std::map<int, int>nextPathTracker;
+	std::vector<std::map<int, std::string>>AllMissions;
+	std::map<int, std::string>locationforMissions; //holds dunNum grabbed and name
 	std::vector<std::map<int, int>>locations;//first int has mapLocation and 2nd is the num of dungeons at that location. The location also determines the size of the map
 	std::vector<Enemy>enemyList;//this gets loaded based on the location
 	bool GameInit = false;
 	static Game& getinstance();
 	void createPlayer(std::string n);
-	void loadPlayer();//will need something in the input
 	//enter map-> map holds the dungeons and expects a player and a list of enemies as its input
 	bool loadGame();
+	bool startMission();
+	void loadAllMissions();
+	void displayMapsAvailable();
 	void loadEnemies(int loc, int dunNum, std::vector<Enemy>&enemyList);
 	bool PrePlay();
 	bool play(Map& currentMap);

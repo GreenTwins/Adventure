@@ -41,6 +41,10 @@ Inventory-> Linked to player load
 
 Store-> map#, loc#
 
+
+12/10 can create dynamic maps. Trying to add dynamic creation of displayed missions that then create the map with random names and mix of creatures
+   ->Need to load db with more creatures and bosses. Verify parameters are flexible and reachable
+   -> do a test run on new char and have lvl and location continuously being updated when needed
 */
 int main() {
 	

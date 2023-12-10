@@ -184,7 +184,93 @@ bool Game::play(Map& currentMap) {
 	return false;
 }
 
+void Game::loadAllMissions() {
+	//this can be edited to add more
+	std::vector<std::string>Desc;
+	std::vector<std::string>Names;
+	int currentLocation = Game::getinstance().playerN.location;
+	if (currentLocation == 1) {
+		Desc= { "Grove", "Thicket", "Woodland", "backwoods", "growth", "woods", "woods", "wildwood", "woodlot", "park" ,"timber", "wilderness" };
+		Names= { "Wandering ", "Treacherous ", "Mystic ", "Undergrowth ", "Bald ", "Foggy ", "Myswerks ", "Elevated ", "Hyde " };
+	}
+	else  {
+		//will update later
+		Desc = { "Grove", "Thicket", "Woodland", "backwoods", "growth", "woods", "woods", "wildwood", "woodlot", "park" ,"timber", "wilderness" };
+		Names = { "Wandering ", "Treacherous ", "Mystic ", "Undergrowth ", "Bald ", "Foggy ", "Myswerks ", "Elevated ", "Hyde " };
+	}
+	for (int i = 0; i < 6; ++i) {
+		int mapDesc = rand() % (Desc.size()) + 1;
+		int mapName = rand() % (Names.size()) + 1;
+		std::string MissionTitle = ((Names[mapName]) + (Desc[mapDesc]));
+		locationforMissions[i+1] = MissionTitle; //this gets pulled to give player and map the dungeon number
+		std::map<int, std::string>MapData; 
+		locationforMissions[i] = MissionTitle;//load dunNum
+		MapData[currentLocation] = MissionTitle; //this just gives the title and the actual location
+		//location, dun num and name are required for the next 2 steps
+		AllMissions.push_back(MapData);
+	}
+	
+	
+}
+void Game::displayMapsAvailable() {
+	//randomize pick from listofNames based on currentLocation via player
+	loadAllMissions();
+	std::map<int, std::string>temp_for_dungNum;
+	std::map<int, std::string>ShownMissions;
+	std::vector<std::map<int, std::string>>holder;
+	int currentLocation = Game::getinstance().playerN.location;
+	int missionchoice = 0;
+	for (int i = 0; i < 3; ++i) {
+		int choice = (rand() % (AllMissions.size()) + 1);
+		std::map<int, std::string>found = AllMissions[choice];
+		holder.push_back(found);
+		for (auto& item : found) {
+			std::cout << i + 1 << ".) " << item.second << std::endl;
+		}
+	}
 
+	std::cout << "Which mission do you choose?: ";
+	std::cin >> missionchoice;
+	
+	ShownMissions = holder[missionchoice - 1];
+	for (auto& item : ShownMissions) {
+		currentDunNum = item.first;
+	}
+	std::cout << currentDunNum << std::endl;
+	//the choice doesnt matter we just make a random map. You just have a pretty name with it
+}
+
+bool Game::startMission() {
+	bool tryAgain = true;
+	bool success = false;
+	char option;
+	
+	currentDunLvl = 1;//this is pulled from currentlevel
+	
+	while (tryAgain) {
+		getLocationName(currentDunNum);//starting new
+		Map newMap;
+		std::cout << "creating paths" << std::endl;
+		newMap.createPaths(currentDunLvl);
+		Game::getinstance().loadEnemies(currentDunLvl, currentDunNum, Game::enemyList);
+		std::cout << Game::getinstance().enemyList.size();
+		if (play(newMap)) {
+			//go back to island
+			success = true;
+			tryAgain = false;
+		}
+		//got back to main menu or try again
+		else {
+			std::cout << "You have died. Would you like to try again? Type C to continue or Q to quit: ";
+			std::cin >> option;
+			if (option == 'Q' || option == 'q') {
+				tryAgain = false;
+			}
+			Game::getinstance().playerN.refillHP();
+		}
+	}
+	return success;
+}
 //MAIN MENU
 
 /******************************************************************************************************
@@ -671,8 +757,11 @@ void GameConsole::options() {
 		case 1:
 			//shows available islands
 			break;
-		case 2:
+		case 2: {
 			//shows islands quests
+			Game::getinstance().displayMapsAvailable();
+			Game::getinstance().startMission();
+		}
 			break;
 		case 3:
 			//enter missions
