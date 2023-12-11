@@ -26,6 +26,8 @@ public:
 	bool can_level_up();
 	//EXP
 	void set_EXP(int a);
+	void setMax_HP(int a);
+	int getMaxHP()const;
 	int getEXP()const;
 	void increaseHealth(int lvl);
 	void increaseStats();

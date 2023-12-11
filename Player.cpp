@@ -19,13 +19,19 @@ int Player::getLvl()const {
 void Player::setlvl(int lvl) {
 	lvl = lvl;//looks wild huh?
 }
+void Player::setMax_HP(int maxhp) {
+	MAX_HP = maxhp;
+}
+int Player::getMaxHP()const {
+	return MAX_HP;
+}
 void Player::refillHP() {
-	setHP(MAX_HP);
+	setHP(getMaxHP());
 }
 void Player::increaseHealth(int lvl) {
 	if (lvl == 1) {
-		MAX_HP = 150;
-		setHP(MAX_HP);
+		setMax_HP(150);
+		setHP(getMaxHP());
 	}
 	displayStats(true);
 }

@@ -24,6 +24,15 @@ theres a recursive call which is tied to a while loop for a turn by turn battle-
   INSERT INTO Boss (dungeonLocation, BossName, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc)
 VALUES(1, 'placeHolder', 50, 30, 5,4,4, 2, 5, 10, 4, 6, 2, 3, 'atk1','atk2','atk3','atk4','atk5','atk6');
 
+INSERT INTO Enemy (SpawnLocation, dungeonNum, EnemyName, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc)
+VALUES(1, 5, 'Goblin Blackblade', 38, 10, 4,4,3, 5, 2, 5, 2, 6, 2, 2, 'Lurker','Short sword','Sneaky blade','Ebondy blade','Dirty wound','flanking slice');
+
+
+DUP EX
+
+INSERT INTO TableName (Column1, CustomID, Column3, Column4, Column5)
+SELECT Column1, 'NewValue', Column3, Column4, Column5 FROM TableName
+WHERE CustomID='OrigValue'
 
 12/6 Possible solution to subsrcipt error-> place all fights in free space mem (dynamic) and clear after each fight. Possible use for smart pointers
 
