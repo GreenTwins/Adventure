@@ -35,6 +35,8 @@ public:
 	std::pair<std::string, int>attack4;
 	std::pair<std::string, int>attack5;
 	std::pair<std::string, int>attack6;
+	//INVENTORY
+	
 };
 
 

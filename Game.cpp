@@ -65,6 +65,8 @@ void Game::loadEnemies(int loc, int dunNum, std::vector<Enemy>&e) {
 		std::cout << "Database failed to connect" << std::endl;
 	}
 }
+
+
 /******************************************************************************************************
 GAME CLASS player association
 
@@ -72,6 +74,84 @@ GAME CLASS player association
 void Game::createPlayer(std::string n) {
 	playerN=Player::Player(n);
 	newChar = true;
+}
+
+void Game::displayInventory() {
+	char response;
+	int choice;
+	std::cout << "Do you want to equip an item?(Y/N): ";
+	std::cin >> response;
+	if (response == 'y' || response == 'Y') {
+		for (int i = 0; i < Inventory.size(); i++) {
+			Item item = Inventory[i];
+			std::cout << i + 1 << ".)Name: " << item.getItemName() << " Type: " << item.getType() << " " << std::endl;
+		}
+		std::cout << "Which item do you want to equip?: ";
+		std::cin >> choice;
+		equipItem(Inventory[choice - 1]);
+	}
+	else {
+		std::cout << "		" << playerN.getName() << "'s Inventory" << std::endl;
+		std::cout << "ITEM NAME--------ITEM STATS------EQUIPPED----" << std::endl;
+		int counter = 1;
+		for (auto& item : Inventory) {
+			std::cout << counter<<".) "<<item.getItemName() << "\t" << item.getStats().first << ": +" << item.getStats().second << "\t" << item.getIsEquip() << std::endl;
+			counter++;
+		}
+	}
+}
+void Game::equipItem(Item& it) {
+	char choice;
+	std::string itemType = it.getType();
+	if (activeItems[itemType] == 0) {
+		activeItems[itemType]=true;
+		it.set_EquipON();
+		int buffAmt = it.getStats().second;
+		if (it.getStats().first == "HP") {
+			if (playerN.getHP() != playerN.getMaxHP()) {
+				if ((playerN.getHP() + it.getStats().second) <= playerN.getMaxHP()) {
+					//its not more than maxHP
+					playerN.setHP(playerN.getHP() + buffAmt);
+					return;
+				}
+				else {
+					//you waste some but fill HP
+					playerN.setHP(playerN.getMaxHP());
+				}
+			}
+			//make sure potion is removed after set ON
+
+			return;
+		}
+		if (it.getStats().first == "Def") {
+			playerN.setDef(playerN.getDef() + buffAmt);
+			return;
+		}
+		if (it.getStats().first == "Str") {
+			playerN.setStr(playerN.getStr() + buffAmt);
+		}
+	}
+	else {
+		//spot is occupied
+		std::cout << "There seems to be an item equipped for this position. Do you wish to swap?(Y/N): ";
+		std::cin >> choice;
+		if (choice == 'y' || choice == 'Y') {
+			//find the active item- turn it off and turn this one on
+			for (auto& foundItem : Inventory) {
+				if ((foundItem.getType() == itemType) && (foundItem.getIsEquip())) {
+					foundItem.set_EquipOff();
+					int buffRemoved = foundItem.getStats().second;
+					if (foundItem.getType() == "Def") {
+						playerN.setDef(playerN.getDef() - buffRemoved);
+					}
+					else {
+						playerN.setStr(playerN.getStr() - buffRemoved);
+					}
+					 equipItem(it);
+				}
+			}
+		}
+	}
 }
 /******************************************************************************************************
 GAME CLASS game loading and instances
@@ -136,10 +216,10 @@ bool Game::loadGame() {
 
 
 bool Game::PrePlay() {
+	GameInit = true;
 	bool tryAgain = true;
 	bool success = false;
 	char option;
-	std::cout << "inside preplay" << std::endl;
 	currentDunLvl = 1;
 	currentDunNum = 1;
 	playerN.location = 1;
@@ -152,6 +232,7 @@ bool Game::PrePlay() {
 		std::cout << Game::getinstance().enemyList.size();
 		if (play(newMap)) {
 			//go back to island
+			GameInit = false;
 			success = true;
 			tryAgain = false;
 		}
@@ -315,13 +396,59 @@ void Game::displayStore(int lvl) {
 	}
 
 	//NOW DISPLAY THE STORE
+	std::cout << "Current gold available: " << Game::getinstance().playerN.getGold() << std::endl;
 	for (int i = 0; i < StoreDisplay.size(); ++i) {
 		std::string name = StoreDisplay[i].getItemName();
 		int price = StoreDisplay[i].getPrice();
 		std::string type = StoreDisplay[i].getType();
-		int buff = StoreDisplay[i].getStats();
+		int buff = (StoreDisplay[i].getStats()).second;
 		std::cout << i + 1 << ".) Name:  " << name << "\t Price: " << price << "\t Type: " << type << "\t Buff: " << buff << std::endl;
 	}
+	int choice;
+	std::cout << "What would you like to purchase?: ";
+	std::cin >> choice;
+	if (StoreDisplay[choice - 1].getPrice() <= playerN.getGold()) {
+		std::cout << "Purchase successful. Go to inventory to use" << std::endl;
+		Inventory.push_back(StoreDisplay[choice - 1]);
+	}
+	else {
+		std::cout << "You dont have enough money" << std::endl;
+	}
+	char response;
+	std::cout << "Do you still want to shop?(Y/N): ";
+	std::cin >> response;
+	if (response == 'y' || response == 'Y') {
+		 return displayStore(lvl);
+	}
+	std::cout << "Come again!" << std::endl;
+}
+
+void Game::inGameOption() {
+	int choice;
+	if ((!GameInit)) {
+		std::cout << "\nWhat would you like to do?: ";
+		std::cout << "1.) Check Map" << std::endl;
+		std::cout << "2.) Equip Item/Heal" << std::endl;
+		std::cout << "3.) Display stats" << std::endl;
+		std::cout << "4.) Continue to move" << std::endl;
+		std::cin >> choice;
+		switch (choice) {
+		case 1:
+			break;
+		case 2:
+			displayInventory();
+			break;
+		case 3:
+			playerN.displayStats(false);
+			break;
+		case 4:
+			break;
+		default:
+			std::cout << "Please choose an option listened above" << std::endl;
+			break;
+		}
+	}
+	
 
 }
 //MAIN MENU
@@ -657,6 +784,9 @@ bool Map::bossBattle(int loc,int dunNum, Player& p1) {
 	}
 	if (p1.getHP() > 0) {
 		std::cout << "You've triumphed over " << newBoss.getName() << std::endl;
+		std::cout << "You're achievement: +" << newBoss.getGold() << " gold and +" << newBoss.getXP() << " XP" << std::endl;
+		totalXP += newBoss.getXP();
+		totalGold += newBoss.getGold();
 		return true;
 	}
 	std::cout << "You've fallen in battle" << std::endl;
@@ -723,6 +853,7 @@ int Map::availableMoves(int a) {
 		totalXP += newEnemy.getXP();
 		totalGold += newEnemy.getGold();
 	}
+	Game::getinstance().inGameOption();
 	std::cout << "The following pathways are available from here: ";
 		for (auto neighbor : mapp[a]) {
 			std::cout << "[ " << neighbor << " ";
@@ -803,14 +934,18 @@ void Item::setType(std::string t) {
 std::string Item::getType()const {
 	return itemType;
 }
-int Item::getStats()const {
+std::pair<std::string, int> Item::getStats()const {
+	std::pair<std::string, int>buffs;
 	if (strBuff == 0 && defBuff == 0) {
-		return HPBuff;
+		buffs = std::make_pair("HP", HPBuff);
+		return buffs;
 	}
 	if (defBuff == 0 && HPBuff == 0) {
-		return strBuff;
+		buffs = std::make_pair("Str", strBuff);
+		return buffs;
 	}
-	return defBuff;
+	buffs = std::make_pair("Def", defBuff);
+	return buffs;
 }
 void Item::setRequirement(int req) {
 	Requirement = req;
@@ -855,7 +990,8 @@ void GameConsole::display()const {
 	std::cout << "Level: " << Game::getinstance().playerN.getLvl() << std::endl;
 	std::cout << "Health: " << Game::getinstance().playerN.getHP() << "\t";
 	std::cout << "Current Location: " << Game::getinstance().playerN.location<<std::endl;
-	std::cout << "XP: " << "\t";
+	std::cout << "XP: " << Game::getinstance().playerN.getXP() << std::endl;
+	std::cout << "Gold: " << Game::getinstance().playerN.getGold() << std::endl;
 
 }
 void GameConsole::options() {
@@ -867,7 +1003,7 @@ void GameConsole::options() {
 		std::cout << "2.) Enter Mission" << std::endl;
 		std::cout << "3.) Go to Inventory" << std::endl;
 		std::cout << "4.) Go to Store" << std::endl;
-		std::cout << "5.) Display stats" << std::endl;
+		std::cout << "5.) Display All Stats" << std::endl;
 		std::cout << "6.) Save Game" << std::endl;
 		std::cout << "7.) Back to Main Menu" << std::endl;
 		std::cout << "8.) Quit" << std::endl;
@@ -886,15 +1022,15 @@ void GameConsole::options() {
 		
 			break;
 		case 3:
-			//enter missions
+			Game::getinstance().displayInventory();
 			break;
 		case 4:
 			Game::getinstance().loadStore();
-			std::cout << "Current gold available: "<<Game::getinstance().playerN.getGold() << std::endl;
 			Game::getinstance().displayStore(Game::getinstance().playerN.getLvl());
 			break;
 		case 5:
 			display();
+			Game::getinstance().playerN.displayStats(true);
 			break;
 		case 6:
 			saveState();

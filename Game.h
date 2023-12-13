@@ -51,7 +51,7 @@ public:
 	//SPOILS FROM BATTLE
 	int totalGold = 0;
 	int totalXP = 0;
-	
+
 };
 
 #endif
@@ -86,7 +86,7 @@ public:
 	std::string getItemName()const;
 	void setName(std::string n);
 	void setItemStats(int str, int def, int hp);
-	int getStats()const;
+	std::pair<std::string, int> getStats()const;
 	void setPrice(int p);
 	int getPrice()const;
 	void setID(int iD);
@@ -160,6 +160,16 @@ public:
 	void displayStore(int dunLvl);
 	void loadStore();
 	
+
+
+	//PLAYERS INVENTORY
+	std::vector<Item>Inventory;
+	void displayInventory();
+	void equipItem(Item& i);
+	std::map<std::string, bool>activeItems;
+
+	//ingameOPtion
+	void inGameOption();
 };
 
 
