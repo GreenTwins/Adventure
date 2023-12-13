@@ -170,11 +170,15 @@ bool Game::PrePlay() {
 	
 
 bool Game::play(Map& currentMap) {
+	system(CLEAR_SCREEN);
 	currentMap.makeMove(1);
 	
 	if (playerN.getHP() > 0) {
+		system(CLEAR_SCREEN);
 		std::cout << "You've entered the Boss room" << std::endl;
 		if (currentMap.bossBattle(currentDunLvl, currentDunNum, playerN)) {
+			playerN.setGold(currentMap.totalGold);
+			playerN.setXP(currentMap.totalXP);
 			return true;
 		}
 		return false;
@@ -216,17 +220,26 @@ void Game::displayMapsAvailable() {
 	loadAllMissions();
 	std::map<int, std::string>ShownMissions;
 	std::vector<std::map<int, std::string>>holder;
+	std::map<int, std::string>found;
 	int currentLocation = Game::getinstance().playerN.location;
+	std::map<int, int>choiceHistory;
 	int missionchoice = 0;
-	for (int i = 0; i < 3; ++i) {
+	int i = 1;
+
+	while (holder.size() < 3) {
 		int choice = (rand() % (AllMissions.size()) + 1);
-		std::map<int, std::string>found = AllMissions[choice-1];
-		holder.push_back(found);
-		for (auto& item : found) {
-			std::cout << i + 1 << ".) " << item.second << std::endl;
+		if (choiceHistory[choice]==0) {
+			choiceHistory[choice]++;
+			found= AllMissions[choice - 1];
+			holder.push_back(found);
+			for (auto& item : found) {
+				std::cout << i << ".) " << item.second << std::endl;
+				++i;
+			}
 		}
 	}
-
+	
+	
 	std::cout << "Which mission do you choose?: ";
 	std::cin >> missionchoice;
 	
@@ -268,6 +281,48 @@ bool Game::startMission() {
 		}
 	}
 	return success;
+}
+void Game::loadStore() {
+	if ((StoreWeapons.size() < 1) && (StorePotions.size() < 1) && (StoreWearables.size() < 1)) {
+		if (!SQLCONN::createInstance().grabStoreData(playerN.getLvl())) {
+			return;
+		}
+		
+	}
+	std::cout << "Store loaded" << std::endl;
+}
+void Game::displayStore(int lvl) {
+	/*std::cout << StoreWeapons.size() << std::endl;
+	std::cout << StoreWearables.size() << std::endl;
+	std::cout << StorePotions.size() << std::endl;*/
+	/*STORE requires a minimum of 3 potions to appear and a combo of weapons or wearables*/
+	std::vector<Item>StoreDisplay;
+	srand(time(NULL));
+	for (int i = 0; i < 4; ++i) {
+		Item potion = StorePotions[rand() % (StorePotions.size()-1) + 1];
+		StoreDisplay.push_back(potion);
+	}
+	for (int j = 0; j < 4; ++j) {
+		int randompick = (rand() % 6 + 1); //
+		if (randompick % 2 == 0) {//if even
+			Item weapon = StoreWeapons[rand() % (StoreWeapons.size()-1) + 1];
+			StoreDisplay.push_back(weapon);
+		}
+		else {
+			Item wearable = StoreWearables[rand() % (StoreWearables.size()-1) + 1];
+			StoreDisplay.push_back(wearable);
+		}
+	}
+
+	//NOW DISPLAY THE STORE
+	for (int i = 0; i < StoreDisplay.size(); ++i) {
+		std::string name = StoreDisplay[i].getItemName();
+		int price = StoreDisplay[i].getPrice();
+		std::string type = StoreDisplay[i].getType();
+		int buff = StoreDisplay[i].getStats();
+		std::cout << i + 1 << ".) Name:  " << name << "\t Price: " << price << "\t Type: " << type << "\t Buff: " << buff << std::endl;
+	}
+
 }
 //MAIN MENU
 
@@ -664,6 +719,9 @@ int Map::availableMoves(int a) {
 		if (!(*battleResultPtr)) {
 			return -1;
 		}
+		std::cout << "You're achievement: +" << newEnemy.getGold() << " gold and +" << newEnemy.getXP() << " XP" << std::endl;
+		totalXP += newEnemy.getXP();
+		totalGold += newEnemy.getGold();
 	}
 	std::cout << "The following pathways are available from here: ";
 		for (auto neighbor : mapp[a]) {
@@ -707,9 +765,75 @@ void Map::loadPathway(int n) {//a list of which path has an enemy present
 }
 
 
-void Map::createLocation() {
-	//make empty map w/o enemies or boss loaded but has pathways created based on current location. Push onto list to be read from in display
 
+/******************************************************************************************************
+STORE ITEM CLASS init,cleaner, getters and setters
+
+*******************************************************************************************************/
+Item::Item() {
+	isEquipped = false;
+	price = 0;
+	strBuff = 0;
+	defBuff = 0;
+	HPBuff = 0;
+	Requirement = 0;
+	itemID = 0;
+}
+Item::~Item() {
+
+}
+bool Item::getIsEquip()const {
+	return isEquipped;
+}
+std::string Item::getItemName()const {
+	return itemName;
+}
+void Item::setName(std::string n) {
+	itemName = n;
+}
+int Item::getPrice() const {
+	return price;
+}
+void Item::setPrice(int p) {
+	price = p;
+}
+void Item::setType(std::string t) {
+	itemType = t;
+}
+std::string Item::getType()const {
+	return itemType;
+}
+int Item::getStats()const {
+	if (strBuff == 0 && defBuff == 0) {
+		return HPBuff;
+	}
+	if (defBuff == 0 && HPBuff == 0) {
+		return strBuff;
+	}
+	return defBuff;
+}
+void Item::setRequirement(int req) {
+	Requirement = req;
+}
+int Item::getRequirement()const {
+	return Requirement;
+}
+void Item::setItemStats(int s, int d, int h) {
+	strBuff = s;
+	defBuff = d;
+	HPBuff = h;
+}
+void Item::set_EquipON() {
+	isEquipped = true;
+}
+void Item::set_EquipOff() {
+	isEquipped = false;
+}
+int Item::getitemID()const {
+	return itemID;
+}
+void Item::setID(int iD) {
+	itemID = iD;
 }
 /******************************************************************************************************
 GAME CONSOLE CLASS init,cleaner, getters and setters
@@ -765,6 +889,9 @@ void GameConsole::options() {
 			//enter missions
 			break;
 		case 4:
+			Game::getinstance().loadStore();
+			std::cout << "Current gold available: "<<Game::getinstance().playerN.getGold() << std::endl;
+			Game::getinstance().displayStore(Game::getinstance().playerN.getLvl());
 			break;
 		case 5:
 			display();

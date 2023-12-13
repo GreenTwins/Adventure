@@ -13,6 +13,8 @@ class Character {
 	int def{ 0 };
 	int spd{ 0 };
 	int dodge{ 0 };
+	int gold = 0;
+	int xp = 0;
 	
 public:
 	Character();
@@ -37,9 +39,10 @@ public:
 	void setDef(int v);
 	void setSpd(int v);
 	void setDodge(int v);
-	
-
-
+	void setGold(int g);
+	int getGold()const;
+	void setXP(int x);
+	int getXP()const;
 	//change stats
 	void changeName(const std::string& nN);
 	void increaseStats(char s, int val);

@@ -46,11 +46,60 @@ public:
 	void makeMove(int currLocation);
 	void loadMapData();
 	bool bossBattle(int loc, int dunNum, Player& p1);
-	void createLocation();
 	std::unique_ptr<bool> DungeonBattle(Player& pl, std::unique_ptr<Enemy>& en);
+
+	//SPOILS FROM BATTLE
+	int totalGold = 0;
+	int totalXP = 0;
+	
 };
 
 #endif
+/******************************************************************************************************
+ITEM CLASS
+
+Holds the items for the stores in the game
+
+
+*******************************************************************************************************/
+
+#pragma once
+#ifndef ITEM_H_
+#define ITEM_H_
+
+class Item {
+	int itemID;
+	bool isEquipped;
+	std::string itemName;
+	int strBuff;
+	int defBuff;
+	int HPBuff;
+	int price;
+	int Requirement;
+	std::string itemType; //H= helmet, W=weapon, P= Potion, A=Armor, B=Boots
+public:
+	Item();
+	~Item();
+	void set_EquipON();
+	void set_EquipOff();
+	bool getIsEquip()const;
+	std::string getItemName()const;
+	void setName(std::string n);
+	void setItemStats(int str, int def, int hp);
+	int getStats()const;
+	void setPrice(int p);
+	int getPrice()const;
+	void setID(int iD);
+	int getitemID()const;
+	int getRequirement()const;
+	void setRequirement(int req);
+	void setType(std::string t);
+	std::string getType()const;
+};
+
+
+#endif
+
 
 /******************************************************************************************************
 GAME CLASS
@@ -82,6 +131,9 @@ public:
 	std::map<int, int>nextPathTracker;
 	std::vector<std::map<int, std::string>>AllMissions;
 	std::string ActiveMissionName;
+	std::vector<Item>StoreWeapons;
+	std::vector<Item>StoreWearables;
+	std::vector<Item>StorePotions;
 	std::map<int, std::string>locationforMissions; //holds dunNum grabbed and name
 	std::vector<std::map<int, int>>locations;//first int has mapLocation and 2nd is the num of dungeons at that location. The location also determines the size of the map
 	std::vector<Enemy>enemyList;//this gets loaded based on the location
@@ -89,6 +141,8 @@ public:
 	static Game& getinstance();
 	void createPlayer(std::string n);
 	//enter map-> map holds the dungeons and expects a player and a list of enemies as its input
+
+
 	bool loadGame();
 	bool startMission();
 	void loadAllMissions();
@@ -101,6 +155,10 @@ public:
 	void fromSQL(bool i);
 	void fromLocal(bool i);
 	bool isLocal()const;
+
+	//STORE
+	void displayStore(int dunLvl);
+	void loadStore();
 	
 };
 

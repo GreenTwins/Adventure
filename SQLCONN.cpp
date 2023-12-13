@@ -144,7 +144,7 @@ bool SQLCONN::getBoss(int loc, int dunNum, Boss& b) {
 	while (SQLFetch(hStmt) == SQL_SUCCESS) {
 		//std::cout << enemy.location << " :";
 		// Assuming columns in order of EnemyID, SpawnLocation, EnemyName, HP, MP, STR, DEF, SPD, DODGE, SKILL1, SKILL2, SKILL3
-		SQLINTEGER enemyID, SpawnLocation, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6;
+		SQLINTEGER enemyID, SpawnLocation, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, XPGiven, GoldGiven;
 		SQLCHAR enemyName[255], Skill1Desc[255], Skill2Desc[255], Skill3Desc[255], Skill4Desc[255], Skill5Desc[255], Skill6Desc[255]; // Assuming max length of 50 for name
 		SQLGetData(hStmt, 1, SQL_C_LONG, &enemyID, 0, NULL);
 		SQLGetData(hStmt, 2, SQL_C_LONG, &SpawnLocation, 0, NULL);
@@ -168,6 +168,8 @@ bool SQLCONN::getBoss(int loc, int dunNum, Boss& b) {
 		SQLGetData(hStmt, 23, SQL_C_CHAR, Skill4Desc, sizeof(Skill4Desc), NULL);
 		SQLGetData(hStmt, 24, SQL_C_CHAR, Skill5Desc, sizeof(Skill5Desc), NULL);
 		SQLGetData(hStmt, 25, SQL_C_CHAR, Skill6Desc, sizeof(Skill6Desc), NULL);
+		SQLGetData(hStmt, 29, SQL_C_LONG, &XPGiven, 0, NULL);
+		SQLGetData(hStmt, 30, SQL_C_LONG, &GoldGiven, 0, NULL);
 
 		// Populate Enemy object
 		b.location = SpawnLocation;
@@ -190,7 +192,8 @@ bool SQLCONN::getBoss(int loc, int dunNum, Boss& b) {
 		b.updateATKList(convertedSkill4, Skill4);
 		b.updateATKList(convertedSkill5, Skill5);
 		b.updateATKList(convertedSkill6, Skill6);
-
+		b.setGold(GoldGiven);
+		b.setXP(XPGiven);
 	}
 
 
@@ -261,7 +264,7 @@ void SQLCONN::getEnemies(int location, int dungeonNum, std::vector<Enemy>&el ) {
 			Enemy enemy(location);
 			//std::cout << enemy.location << " :";
 			// Assuming columns in order of EnemyID, SpawnLocation, EnemyName, HP, MP, STR, DEF, SPD, DODGE, SKILL1, SKILL2, SKILL3
-			SQLINTEGER enemyID, SpawnLocation,  dungeonNum, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3;
+			SQLINTEGER enemyID, SpawnLocation,  dungeonNum, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, XPGiven, GoldGiven;
 			SQLCHAR enemyName[255], Skill1Desc[255], Skill2Desc[255], Skill3Desc[255]; // Assuming max length of 50 for name
 			SQLGetData(hStmt, 1, SQL_C_LONG, &enemyID, 0, NULL);
 			SQLGetData(hStmt, 2, SQL_C_LONG, &SpawnLocation, 0, NULL);
@@ -279,6 +282,8 @@ void SQLCONN::getEnemies(int location, int dungeonNum, std::vector<Enemy>&el ) {
 			SQLGetData(hStmt, 20, SQL_C_CHAR, Skill1Desc, sizeof(Skill1Desc), NULL);
 			SQLGetData(hStmt, 21, SQL_C_CHAR, Skill2Desc, sizeof(Skill2Desc), NULL);
 			SQLGetData(hStmt, 22, SQL_C_CHAR, Skill3Desc, sizeof(Skill3Desc), NULL);
+			SQLGetData(hStmt, 29, SQL_C_LONG, &XPGiven, 0, NULL);
+			SQLGetData(hStmt, 30, SQL_C_LONG, &GoldGiven, 0, NULL);
 
 			// Populate Enemy object
 			enemy.location = SpawnLocation;
@@ -295,7 +300,8 @@ void SQLCONN::getEnemies(int location, int dungeonNum, std::vector<Enemy>&el ) {
 			enemy.updateATKList(convertedSkill1, Skill1);
 			enemy.updateATKList(convertedSkill2, Skill2);
 			enemy.updateATKList(convertedSkill3, Skill3);
-
+			enemy.setGold(GoldGiven);
+			enemy.setXP(XPGiven);
 			//std::cout << enemy.getName() << std::endl;
 			el.push_back(enemy);
 		}
@@ -391,7 +397,7 @@ bool SQLCONN::sqlSave() {
 	}
 	//load data into vars
 	std::string playerName, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc;
-	int HP, MP, Str, Def, Spd, dodge, level, maxHP; 
+	int HP, MP, Str, Def, Spd, dodge, level, maxHP, gold, xp; 
 	int currentLocation, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6;
 	playerName = Game::getinstance().playerN.getName();
 	level = Game::getinstance().playerN.getLvl();
@@ -402,6 +408,8 @@ bool SQLCONN::sqlSave() {
 	Spd = Game::getinstance().playerN.getSpd();
 	dodge = Game::getinstance().playerN.getDodge();
 	maxHP = Game::getinstance().playerN.getMaxHP();
+	gold = Game::getinstance().playerN.getGold();
+	xp = Game::getinstance().playerN.getXP();
 	//loadAttacks(Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc);
 	loadATKfromPlayer();
 	
@@ -430,8 +438,8 @@ bool SQLCONN::sqlSave() {
 	if (Game::getinstance().newChar) {
 		//save to sql
 		std::cout << "Saving new data..." << std::endl;
-		sqlQuery = (SQLWCHAR*)L"INSERT INTO Player (currentLocation, playerName, HP, MP, Str, Def, Spd, dodge, Skill1,Skill2,Skill3,Skill4,Skill5,Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc, level, maxHP)" 
-			L"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		sqlQuery = (SQLWCHAR*)L"INSERT INTO Player (currentLocation, playerName, HP, MP, Str, Def, Spd, dodge, Skill1,Skill2,Skill3,Skill4,Skill5,Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc, level, maxHP,xp,gold)" 
+			L"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 		 ret= SQLPrepare(hStmt, sqlQuery, SQL_NTS);
 		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
@@ -447,7 +455,7 @@ bool SQLCONN::sqlSave() {
 	}
 	else {
 		//use update
-		sqlQuery = (SQLWCHAR*)L"UPDATE Player SET currentLocation=?, HP=?, MP=?, Str=?, Def=?, Spd=?, dodge=?, Skill1=?, Skill2=?, Skill3=?, Skill4=?, Skill5=?, Skill6=?, Skill1Desc=?, Skill2Desc=?, Skill3Desc=?, Skill4Desc=?, Skill5Desc=?, Skill6Desc=?, level=? WHERE playerName=?";
+		sqlQuery = (SQLWCHAR*)L"UPDATE Player SET currentLocation=?, HP=?, MP=?, Str=?, Def=?, Spd=?, dodge=?, Skill1=?, Skill2=?, Skill3=?, Skill4=?, Skill5=?, Skill6=?, Skill1Desc=?, Skill2Desc=?, Skill3Desc=?, Skill4Desc=?, Skill5Desc=?, Skill6Desc=?, level=?, maxHP=?, xp=?, gold=? WHERE playerName=?";
 
 		ret = SQLPrepare(hStmt, sqlQuery, SQL_NTS);
 		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
@@ -483,6 +491,8 @@ bool SQLCONN::sqlSave() {
 	ret = SQLBindParameter(hStmt, 20, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill6Desc.c_str(), 0, &stringLength);
 	ret = SQLBindParameter(hStmt, 21, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &level, 0, NULL);
 	ret = SQLBindParameter(hStmt, 22, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &maxHP, 0, NULL);
+	ret = SQLBindParameter(hStmt, 23, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &xp, 0, NULL);
+	ret = SQLBindParameter(hStmt, 24, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &gold, 0, NULL);
 	
 
 	ret = SQLExecute(hStmt);
@@ -543,7 +553,7 @@ bool SQLCONN::loadPlayerData(const std::string& a) {
 	std::cout << "fetching...." << std::endl;
 	while (SQLFetch(hStmt) == SQL_SUCCESS) {
 		// Assuming columns in order of EnemyID, SpawnLocation, EnemyName, HP, MP, STR, DEF, SPD, DODGE, SKILL1, SKILL2, SKILL3
-		SQLINTEGER currentLocation, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, level, MaxHP;
+		SQLINTEGER currentLocation, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, level, MaxHP, GoldAmt, XP;
 		SQLCHAR playerName[255], Skill1Desc[255], Skill2Desc[255], Skill3Desc[255], Skill4Desc[255], Skill5Desc[255], Skill6Desc[255]; // Assuming max length of 50 for name
 		
 		SQLGetData(hStmt, 2, SQL_C_LONG, &currentLocation, 0, NULL);
@@ -567,6 +577,8 @@ bool SQLCONN::loadPlayerData(const std::string& a) {
 		SQLGetData(hStmt, 24, SQL_C_CHAR, &Skill6Desc, sizeof(Skill6Desc), NULL);
 		SQLGetData(hStmt, 28, SQL_C_LONG, &level, 0, NULL);
 		SQLGetData(hStmt, 29, SQL_C_LONG, &MaxHP, 0, NULL);
+		SQLGetData(hStmt, 30, SQL_C_LONG, &GoldAmt, 0, NULL);
+		SQLGetData(hStmt, 31, SQL_C_LONG, &XP, 0, NULL);
 
 		// Populate Enemy object
 		Game::getinstance().playerN.location = currentLocation;
@@ -591,8 +603,103 @@ bool SQLCONN::loadPlayerData(const std::string& a) {
 		Game::getinstance().playerN.updateATKList(convertedSkill6, Skill6);
 		Game::getinstance().playerN.setlvl(level);
 		Game::getinstance().playerN.setMax_HP(MaxHP);
+		Game::getinstance().playerN.setGold(GoldAmt);
+		Game::getinstance().playerN.setXP(XP);
 		
 	}
+	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	disconnect();
+	return true;
+
+}
+bool SQLCONN::grabStoreData(int lvl) {
+	if (!connect()) {
+		return false;
+	}
+	SQLHSTMT hStmt;
+
+	//std::string currentLevel = std::to_string(lvl); //data in DB is a varchar for future flexibility in item requirement
+	SQLAllocHandle(SQL_HANDLE_STMT, sqlConnection, &hStmt);
+
+	SQLWCHAR* sqlQuery = (SQLWCHAR*)L"SELECT * FROM StoreItems WHERE Requirement <= ?";
+	SQLRETURN ret = SQLPrepare(hStmt, sqlQuery, SQL_NTS);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLCHAR sqlState[6], message[SQL_MAX_MESSAGE_LENGTH];
+		SQLINTEGER nativeError;
+		SQLSMALLINT length;
+		SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
+		std::wcerr << "SQLPrepare failed with error: " << message << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return false;
+	}
+
+	ret = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_C_LONG, 255, 0, &lvl, 0, NULL);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLCHAR sqlState[6], message[SQL_RETURN_CODE_LEN];
+		SQLINTEGER nativeError;
+		SQLSMALLINT length;
+		SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
+		std::wcerr << "SQLBindParameter failed with error: " << message << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return false;
+	}
+	ret = SQLExecute(hStmt);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLCHAR sqlState[SQL_SQLSTATE_SIZE + 1], message[SQL_MAX_MESSAGE_LENGTH];
+		SQLINTEGER nativeError;
+		SQLSMALLINT length;
+		SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_MAX_MESSAGE_LENGTH, &length);
+		std::wcerr << "SQLExecute failed with error: " << message << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return false;
+	}
+	std::cout << "fetching...." << std::endl;
+	while (SQLFetch(hStmt) == SQL_SUCCESS) {
+		// Assuming columns in order of EnemyID, SpawnLocation, EnemyName, HP, MP, STR, DEF, SPD, DODGE, SKILL1, SKILL2, SKILL3
+		SQLINTEGER itemID, itemPrice, itemStrBuff, itemDefBuff, itemHPBuff, Requirement;
+		SQLCHAR itemName[255], itemType[255]; // Assuming max length of 50 for name
+
+		SQLLEN itemNameLength;
+		SQLLEN itemTypeLength;
+
+
+		SQLGetData(hStmt, 1, SQL_C_LONG, &itemID, 0, NULL);
+		SQLGetData(hStmt, 2, SQL_C_CHAR, &itemName, sizeof(itemName), &itemNameLength);
+		SQLGetData(hStmt, 3, SQL_C_LONG, &itemPrice, 0, NULL);
+		SQLGetData(hStmt, 4, SQL_C_LONG, &itemStrBuff, 0, NULL);
+		SQLGetData(hStmt, 5, SQL_C_LONG, &itemDefBuff, 0, NULL);
+		SQLGetData(hStmt, 6, SQL_C_CHAR, &itemType, sizeof(itemType), &itemTypeLength);
+		SQLGetData(hStmt, 7, SQL_C_LONG, &itemHPBuff, 0, NULL);
+		SQLGetData(hStmt, 8, SQL_C_LONG, &Requirement, 0, NULL);
+		
+		
+		
+	
+	
+		
+
+		// Populate Enemy object
+		Item newItem;
+		newItem.setID(itemID);
+		std::string itName = reinterpret_cast<char*>(itemName);
+		newItem.setName(itName);
+		newItem.setPrice(itemPrice);
+		newItem.setItemStats(itemStrBuff, itemDefBuff, itemHPBuff);
+		newItem.setRequirement(Requirement);
+		std::string itType = reinterpret_cast<char*>(itemType);
+		newItem.setType(itType);
+		
+		if ((newItem.getType() == "Helmet")||(newItem.getType() == "Boots")||(newItem.getType() == "Armor")) {
+			Game::getinstance().StoreWearables.push_back(newItem);
+		}
+		else if (newItem.getType() == "Potion") {
+			Game::getinstance().StorePotions.push_back(newItem);
+		}
+		else {
+			Game::getinstance().StoreWeapons.push_back(newItem);
+		}
+	}
+	
 	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	disconnect();
 	return true;

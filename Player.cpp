@@ -11,7 +11,7 @@ Player::Player(std::string& s) :Character{ s } {
 	CreateStats();
 	createATK(6);
 	displayStats(1);
-	set_EXP(0);
+	setXP(0);
 }
 int Player::getLvl()const {
 	return lvl;
@@ -46,7 +46,7 @@ void Player::increaseStats() {
 
 }
 bool Player::can_level_up() {
-	if (getEXP() > 150) {
+	if (getXP() > 150) {
 		increaseStats();
 		increaseHealth(getLvl());
 		return true;
@@ -134,10 +134,4 @@ void Player::CreateStats() {
 		}
 
 	}
-}
-void Player::set_EXP(int moreexp) {
-	exp = (getEXP() + moreexp);
-}
-int Player::getEXP()const {
-	return exp;
 }

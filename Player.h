@@ -9,7 +9,7 @@ class Player : public Character {
 	int lvl{ 1 };
 	bool LoadedInfo = false;
 	int MAX_HP = 0;
-	int exp = 0;
+	
 public:
 	Player();
 	Player(const Player& o) = delete;
@@ -25,10 +25,8 @@ public:
 	void CreateStats();
 	bool can_level_up();
 	//EXP
-	void set_EXP(int a);
 	void setMax_HP(int a);
 	int getMaxHP()const;
-	int getEXP()const;
 	void increaseHealth(int lvl);
 	void increaseStats();
 	std::pair<std::string, int>attack1;

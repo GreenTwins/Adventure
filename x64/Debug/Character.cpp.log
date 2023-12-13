@@ -1,8 +1,13 @@
 ﻿  Game.cpp
 C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(64,14): warning C4101: 'result': unreferenced local variable
-C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(584,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(613,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(642,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(645,16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(690,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(300,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(639,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(668,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(697,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(700,16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\Game.cpp(748,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  SQLCONN.cpp
+C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\Character.cpp\SQLCONN.cpp(557,11): warning C4101: 'playerName': unreferenced local variable
+  main.cpp
+  Generating Code...
   Character.cpp.vcxproj -> C:\Users\aaron\source\CPP\adventure\Character\Char\Character.cpp\x64\Debug\Character.cpp.exe

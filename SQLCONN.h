@@ -36,6 +36,7 @@ public:
 	bool sqlSave();
 	std::vector<std::string>playerList;
 	bool loadPlayerData(const std::string& a);
+	bool grabStoreData(int lvl);
 
 };
 

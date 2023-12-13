@@ -69,3 +69,16 @@ void Character::setDodge(int v) {
 	Character::dodge = v;
 	//std::cout << Character::dodge << std::endl;
 }
+void Character::setXP(int x) {
+	xp = x;
+}
+int Character::getXP()const {
+	return xp;
+}
+
+void Character::setGold(int g) {
+	gold = g;
+}
+int Character::getGold()const {
+	return gold;
+}
