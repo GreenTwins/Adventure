@@ -81,10 +81,11 @@ void Game::displayInventory() {
 	int choice;
 	std::cout << "Do you want to equip an item?(Y/N): ";
 	std::cin >> response;
+	std::cout << "\n";
 	if (response == 'y' || response == 'Y') {
 		for (int i = 0; i < Inventory.size(); i++) {
 			Item item = Inventory[i];
-			std::cout << i + 1 << ".)Name: " << item.getItemName() << " Type: " << item.getType() << " " << std::endl;
+			std::cout << i + 1 << ".)Name: " << item.getItemName() << "\t Type: " << item.getType() << "\t Equpped: " <<std::boolalpha<<item.getIsEquip()<<std::endl;
 		}
 		std::cout << "Which item do you want to equip?: ";
 		std::cin >> choice;
@@ -92,18 +93,35 @@ void Game::displayInventory() {
 	}
 	else {
 		std::cout << "		" << playerN.getName() << "'s Inventory" << std::endl;
-		std::cout << "ITEM NAME--------ITEM STATS------EQUIPPED----" << std::endl;
+		std::cout << "ITEM NAME--------------ITEM STATS------------EQUIPPED----" << std::endl;
 		int counter = 1;
 		for (auto& item : Inventory) {
-			std::cout << counter<<".) "<<item.getItemName() << "\t" << item.getStats().first << ": +" << item.getStats().second << "\t" << item.getIsEquip() << std::endl;
+			std::cout << counter<<".) "<<item.getItemName() << "\t" << item.getStats().first << ": +" << item.getStats().second << "\t Equipped: " << std::boolalpha << item.getIsEquip() << std::endl;
 			counter++;
 		}
 	}
 }
+void Game::unequipItem(Item& it) {
+	std::string removeItem = it.getItemName();
+	for (auto& gotIt : Inventory) {
+		if (gotIt.getItemName() == removeItem) {
+			gotIt.set_EquipOff(); //turns inventory item off
+			activeItems[gotIt.getItemName()] = false; //turns equip marker off
+			int buffRemoved = gotIt.getStats().second;
+			if (gotIt.getType() == "Def") {
+				playerN.setDef(playerN.getDef() - buffRemoved);
+			}
+			else {
+				playerN.setStr(playerN.getStr() - buffRemoved);
+			}
+		}
+	}
+}
+
 void Game::equipItem(Item& it) {
 	char choice;
 	std::string itemType = it.getType();
-	if (activeItems[itemType] == 0) {
+	if (activeItems[itemType] == false) {
 		activeItems[itemType]=true;
 		it.set_EquipON();
 		int buffAmt = it.getStats().second;
@@ -112,7 +130,7 @@ void Game::equipItem(Item& it) {
 				if ((playerN.getHP() + it.getStats().second) <= playerN.getMaxHP()) {
 					//its not more than maxHP
 					playerN.setHP(playerN.getHP() + buffAmt);
-					return;
+					//return;
 				}
 				else {
 					//you waste some but fill HP
@@ -120,7 +138,8 @@ void Game::equipItem(Item& it) {
 				}
 			}
 			//make sure potion is removed after set ON
-
+			it.set_EquipOff();
+			remove_item(it);
 			return;
 		}
 		if (it.getStats().first == "Def") {
@@ -131,28 +150,46 @@ void Game::equipItem(Item& it) {
 			playerN.setStr(playerN.getStr() + buffAmt);
 		}
 	}
-	else {
-		//spot is occupied
-		std::cout << "There seems to be an item equipped for this position. Do you wish to swap?(Y/N): ";
-		std::cin >> choice;
-		if (choice == 'y' || choice == 'Y') {
-			//find the active item- turn it off and turn this one on
-			for (auto& foundItem : Inventory) {
-				if ((foundItem.getType() == itemType) && (foundItem.getIsEquip())) {
-					foundItem.set_EquipOff();
-					int buffRemoved = foundItem.getStats().second;
-					if (foundItem.getType() == "Def") {
-						playerN.setDef(playerN.getDef() - buffRemoved);
-					}
-					else {
-						playerN.setStr(playerN.getStr() - buffRemoved);
-					}
-					 equipItem(it);
-				}
+
+ else {
+	 // spot is occupied
+	std::cout << "There seems to be an item equipped for this position. Do you wish to swap?(Y/N): ";
+	std::cin >> choice;
+	if (choice == 'y' || choice == 'Y') {
+		// find the active item, turn it off and turn this one on
+		for (auto& foundItem : Inventory) {
+			if ((foundItem.getType() == itemType) && (foundItem.getIsEquip())) {
+				foundItem.set_EquipOff();
+				unequipItem(foundItem); // unequip previous item
+				break; // stop the loop after finding and unequipping the item
 			}
 		}
+
+		it.set_EquipON(); // equip the new item
+		activeItems[itemType] = true;
+
+		int buffAmt = it.getStats().second;
+		if (it.getStats().first == "HP") {
+			// ... (rest of your HP logic)
+		}
+		else if (it.getStats().first == "Def") {
+			playerN.setDef(playerN.getDef() + buffAmt);
+		}
+		else if (it.getStats().first == "Str") {
+			playerN.setStr(playerN.getStr() + buffAmt);
+		}
+	}
 	}
 }
+
+void Game::remove_item(Item a) {
+	auto it = std::find(Inventory.begin(), Inventory.end(), a);
+
+	if (it != Inventory.end()) {
+		Inventory.erase(it);
+	}
+}
+
 /******************************************************************************************************
 GAME CLASS game loading and instances
 
@@ -258,8 +295,8 @@ bool Game::play(Map& currentMap) {
 		system(CLEAR_SCREEN);
 		std::cout << "You've entered the Boss room" << std::endl;
 		if (currentMap.bossBattle(currentDunLvl, currentDunNum, playerN)) {
-			playerN.setGold(currentMap.totalGold);
-			playerN.setXP(currentMap.totalXP);
+			/*playerN.setGold(playerN.getcurrentMap.totalGold);
+			playerN.setXP(currentMap.totalXP);*/
 			return true;
 		}
 		return false;
@@ -408,8 +445,10 @@ void Game::displayStore(int lvl) {
 	std::cout << "What would you like to purchase?: ";
 	std::cin >> choice;
 	if (StoreDisplay[choice - 1].getPrice() <= playerN.getGold()) {
+		int goldSpent = StoreDisplay[choice - 1].getPrice();
 		std::cout << "Purchase successful. Go to inventory to use" << std::endl;
 		Inventory.push_back(StoreDisplay[choice - 1]);
+		playerN.setGold(playerN.getGold() - goldSpent);
 	}
 	else {
 		std::cout << "You dont have enough money" << std::endl;
@@ -423,34 +462,8 @@ void Game::displayStore(int lvl) {
 	std::cout << "Come again!" << std::endl;
 }
 
-void Game::inGameOption() {
-	int choice;
-	if ((!GameInit)) {
-		std::cout << "\nWhat would you like to do?: ";
-		std::cout << "1.) Check Map" << std::endl;
-		std::cout << "2.) Equip Item/Heal" << std::endl;
-		std::cout << "3.) Display stats" << std::endl;
-		std::cout << "4.) Continue to move" << std::endl;
-		std::cin >> choice;
-		switch (choice) {
-		case 1:
-			break;
-		case 2:
-			displayInventory();
-			break;
-		case 3:
-			playerN.displayStats(false);
-			break;
-		case 4:
-			break;
-		default:
-			std::cout << "Please choose an option listened above" << std::endl;
-			break;
-		}
-	}
-	
 
-}
+
 //MAIN MENU
 
 /******************************************************************************************************
@@ -547,7 +560,54 @@ std::unique_ptr<int>determinenextconnectedPath(int path, int locationSize) {
 	return std::make_unique<int>(path);
 
 }
+void Map::upDateTracker() {
+	if (!checkVisited(currentPlacement)) {
+		addEdge(currentPlacement, nextPlacement);
+	}
+}
+bool Map::checkVisited(int current) {
+	q.push(1);
+	visited[1] = 1;
+	while (!q.empty()) {
+		int curr = q.front();
+		q.pop();
+	/*	if (curr == current) {
+			return true;
+		}*/
+		for (auto neigh : MoveTracker[curr]) {
+				if (visited[neigh] != 1) {
+					q.push(neigh);
+					visited[neigh] = 1;
+				}
+		}
+		
+	}
+	return false;
+}
+void Map::addEdge(int u, int v) {
+	MoveTracker[u].push_back(v);
+	MoveTracker[v].push_back(u);
+}
+void Map::displayTracker() {
+	std::queue<int>tempq;
+	std::map<int, int>vis;
 
+	tempq.push(1);
+	visited[1] = 1;
+	while (!tempq.empty()) {
+		int curr = tempq.front();
+		tempq.pop();
+		std::cout << curr << "\t";
+		
+		for (auto neighbor : MoveTracker[curr]) {
+			std::cout << neighbor << std::endl;
+			if (vis[neighbor] != 1) {
+				tempq.push(neighbor);
+				vis[neighbor] = 1;
+			}
+		}
+	}
+}
 void Map::createPaths(int Location) {
 	int connections = 0;
 	if (Location <= 2) {
@@ -571,6 +631,9 @@ void Map::createPaths(int Location) {
 		std::uniform_int_distribution<int> distrib(1, end - 1); // Avoiding 0 as a possible value
 
 		second = distrib(gen);
+		if (second == 1) {
+			second = 2;
+		}
 		add(1, second);
 		std::cout << "(1" << " , " << second << ")" << std::endl;
 
@@ -787,6 +850,8 @@ bool Map::bossBattle(int loc,int dunNum, Player& p1) {
 		std::cout << "You're achievement: +" << newBoss.getGold() << " gold and +" << newBoss.getXP() << " XP" << std::endl;
 		totalXP += newBoss.getXP();
 		totalGold += newBoss.getGold();
+		p1.setGold(p1.getGold() + totalGold);
+		p1.setXP(p1.getXP() + totalXP);
 		return true;
 	}
 	std::cout << "You've fallen in battle" << std::endl;
@@ -822,9 +887,55 @@ std::unique_ptr<bool>Map::DungeonBattle(Player& pl, std::unique_ptr<Enemy>& en) 
 	std::cout << "You've fallen in battle" << std::endl;
 	return std::make_unique<bool>(false);
 }
+
+
+int Map::inGameInputs() {
+	int movement = 0;
+	std::string input;
+
+	std::cout << "\nWhat would you like to do?: ";
+
+	while (true) {
+		if (std::cin >> movement) {
+			// Handle integer input
+			// Perform actions based on the integer input (if needed)
+			break; // Exit the loop if an integer input is received
+		}
+		else {
+			// Clear input stream state and discard invalid input
+			std::cin.clear();
+			std::cin >> input;
+
+			// Handle string input
+			if (input == "map") {
+				if (nextPlacement != 0) {
+					displayTracker();
+				}
+				else {
+					std::cout << "You haven't made enough moves to show the map" << std::endl;
+				}
+			}
+			else if (input == "inv") {
+				Game::getinstance().displayInventory();
+			}
+			else if (input == "stats") {
+				Game::getinstance().playerN.displayStats(false);
+			}
+			else {
+				std::cout << "The input given wasn't a recognized option" << std::endl;
+			}
+
+			std::cout << "\nWhat would you like to do?: ";
+		}
+	}
+
+	return movement;
+}
+
 int Map::availableMoves(int a) {
-	int movement{ 0 };
 	srand(time(NULL));
+	currentPlacement = a;
+
 	if (pathwayy[a]) {//this gets the .second of the map which is whether there is an enemy
 		//std::cout << "There is an enemy in the room" << std::endl;
 		int listsize = Game::getinstance().enemyList.size();
@@ -853,16 +964,17 @@ int Map::availableMoves(int a) {
 		totalXP += newEnemy.getXP();
 		totalGold += newEnemy.getGold();
 	}
-	Game::getinstance().inGameOption();
+	//InGameDecisions(std::cin);
 	std::cout << "The following pathways are available from here: ";
 		for (auto neighbor : mapp[a]) {
 			std::cout << "[ " << neighbor << " ";
 		}
 		std::cout << "]";
-		std::cout<<"\n Where would you like to go?: ";
-		std::cin >> movement;
-
-		return movement;
+		
+		int temp= inGameInputs();
+		nextPlacement = temp;
+		upDateTracker();
+		return temp;
 }
 void Map::makeMove(int currLocation) {
 	if (currLocation == end) {
@@ -889,10 +1001,6 @@ void Map::loadPathway(int n) {//a list of which path has an enemy present
 		}
 		
 	}
-	/*for (const auto& entry : pathwayy) {
-
-		std::cout << entry.first << ", " << entry.second << std::endl;
-	}*/
 }
 
 
@@ -970,6 +1078,9 @@ int Item::getitemID()const {
 void Item::setID(int iD) {
 	itemID = iD;
 }
+bool Item::operator==(const Item& o)const {
+	return this->itemID == o.itemID;
+}
 /******************************************************************************************************
 GAME CONSOLE CLASS init,cleaner, getters and setters
 
@@ -999,7 +1110,7 @@ void GameConsole::options() {
 	bool displayOptions = true;
 
 	while (displayOptions) {
-		std::cout << "1.) Travel" << std::endl;
+		std::cout << "\n1.) Travel" << std::endl;
 		std::cout << "2.) Enter Mission" << std::endl;
 		std::cout << "3.) Go to Inventory" << std::endl;
 		std::cout << "4.) Go to Store" << std::endl;
@@ -1009,40 +1120,45 @@ void GameConsole::options() {
 		std::cout << "8.) Quit" << std::endl;
 
 		std::cout << "Which event do you choose to complete?: ";
-		std::cin >> option;
+		if (std::cin >> option) {
 
-		switch (option) {
-		case 1:
-			//shows available islands
-			break;
-		case 2: 
-			//shows islands quests
-			Game::getinstance().displayMapsAvailable();
-			Game::getinstance().startMission();
-		
-			break;
-		case 3:
-			Game::getinstance().displayInventory();
-			break;
-		case 4:
-			Game::getinstance().loadStore();
-			Game::getinstance().displayStore(Game::getinstance().playerN.getLvl());
-			break;
-		case 5:
-			display();
-			Game::getinstance().playerN.displayStats(true);
-			break;
-		case 6:
-			saveState();
-			break;
-		case 7:
-			backtoMain();
-			break;
-		case 8: 
-			return;
-		default:
-			std::cerr << "Please choose an appropriate option from above" << std::endl;
-			break;
+			switch (option) {
+			case 1:
+				//shows available islands
+				break;
+			case 2:
+				//shows islands quests
+				Game::getinstance().displayMapsAvailable();
+				Game::getinstance().startMission();
+
+				break;
+			case 3:
+				Game::getinstance().displayInventory();
+				break;
+			case 4:
+				Game::getinstance().loadStore();
+				Game::getinstance().displayStore(Game::getinstance().playerN.getLvl());
+				break;
+			case 5:
+				display();
+				Game::getinstance().playerN.displayStats(true);
+				break;
+			case 6:
+				saveState();
+				break;
+			case 7:
+				backtoMain();
+				break;
+			case 8:
+				return;
+			default:
+				std::cerr << "Please choose an appropriate option from above" << std::endl;
+				break;
+			}
+		}
+		else {
+			std::cout << "\n That wasnt a valid option" << std::endl;
+			options();
 		}
 	}
 }

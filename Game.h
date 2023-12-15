@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 #include <memory>
+#include <queue>
 
 #pragma once
 #ifndef _MAP_H_
@@ -51,7 +52,17 @@ public:
 	//SPOILS FROM BATTLE
 	int totalGold = 0;
 	int totalXP = 0;
-
+	
+	//Players Map/Move tracker
+	std::map<int, std::list<int>>MoveTracker;
+	std::queue<int>q;
+	std::map<int, int>visited;
+	int currentPlacement, nextPlacement;
+	void addEdge(int u, int v);
+	bool checkVisited(int n);
+	void upDateTracker();
+	void displayTracker();
+	int inGameInputs();
 };
 
 #endif
@@ -95,6 +106,7 @@ public:
 	void setRequirement(int req);
 	void setType(std::string t);
 	std::string getType()const;
+	bool operator==(const Item& other)const;
 };
 
 
@@ -166,10 +178,10 @@ public:
 	std::vector<Item>Inventory;
 	void displayInventory();
 	void equipItem(Item& i);
+	void unequipItem(Item& i);
+	void remove_item(Item i);
 	std::map<std::string, bool>activeItems;
 
-	//ingameOPtion
-	void inGameOption();
 };
 
 
