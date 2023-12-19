@@ -16,6 +16,8 @@ Game::Game() {
 	master.display();*/
 	enemyList.clear();
 	locations.clear();
+	BossReq.push_back("Troll");
+	uploadWorldMap();
 }
 Game::~Game() {
 	std::cout << "Game instance deleted" << std::endl;
@@ -26,7 +28,18 @@ void Game::fromSQL(bool i) {
 void Game::fromLocal(bool i) {
 	onlocal = i;
 }
+void Game::uploadWorldMap() {
+	std::vector<std::string>world_mapNames = { "Realm of Qiteoria", "Realm of Reperion","City of Ibburyon","The Echo Lands","The Barrens","The Reach of Dreams","Lands of the Broken","The Hells Vale" };
+	
+	for (std::string maps : world_mapNames) {
+		std::map<std::string, bool>mapItem;
+		 mapItem.insert(std::make_pair(maps, false));
+		 world_map.push_back(mapItem);
+	}
+	
+	
 
+}
 
 Game& Game::getinstance() {
 	static Game instance;
@@ -41,20 +54,41 @@ bool Game::isLocal()const {
 	return onlocal;
 }
 void Game::getLocationName(int loc) {
-
-	switch (loc) {
-	case 1:
-		std::cout << "You've entered Rom Island" << std::endl;
-		break;
-	case 2:
-		break;
-	default:
-		std::cerr << "Location is not available" << std::endl;
-		break;
+	std::map<std::string, bool>currentLocation = world_map[loc - 1];
+	for (auto& mapItem : currentLocation) {
+		std::cout << "You've entered: " << mapItem.first << "\n";
 	}
-
 }
+int Game::TravelonWorldMap() {
+	int location_num = 1;
+	for (auto& map : world_map) {
+		for (auto& elements : map) {
+			//elements.second
+			if (playerN.getLvl()>=location_num) {
+				std::cout << "Location " << location_num << ": " << elements.first << '\n';
 
+			}
+			else {
+				std::cout << "Location " << location_num << ": Unavailable at your current level" << std::endl;
+			}
+			location_num++;
+		}
+	}
+	int travelLocation = 0;
+	std::cout << "\n Which locaiton do you want to travel to?: "; 
+	std::cin >> travelLocation;
+
+	if (travelLocation > playerN.getLvl()) {//player level and the boolean should match for access
+		std::cout << "This location isnt available to you \n";
+		return -1;
+	}
+	else if (travelLocation > world_map.size()) {
+		std::cout << "The choice given is invalid \n";
+		return -1;
+	}
+	std::cout << "Moving to new region....\n";
+	return travelLocation;
+}
 void Game::loadEnemies(int loc, int dunNum, std::vector<Enemy>&e) {
 	try {
 		SQLCONN &enemyGrab=SQLCONN::createInstance();
@@ -111,8 +145,12 @@ void Game::unequipItem(Item& it) {
 			if (gotIt.getType() == "Def") {
 				playerN.setDef(playerN.getDef() - buffRemoved);
 			}
-			else {
+			else if(gotIt.getType()=="Str"){
 				playerN.setStr(playerN.getStr() - buffRemoved);
+			}
+			else {
+				std::cout << "Empty potion removed" << std::endl;
+				activeItems[gotIt.getType()] = false;
 			}
 		}
 	}
@@ -139,6 +177,7 @@ void Game::equipItem(Item& it) {
 			}
 			//make sure potion is removed after set ON
 			it.set_EquipOff();
+			activeItems[itemType] = false;
 			remove_item(it);
 			return;
 		}
@@ -170,7 +209,17 @@ void Game::equipItem(Item& it) {
 
 		int buffAmt = it.getStats().second;
 		if (it.getStats().first == "HP") {
-			// ... (rest of your HP logic)
+			if (playerN.getHP() != playerN.getMaxHP()) {
+				if ((playerN.getHP() + it.getStats().second) <= playerN.getMaxHP()) {
+					//its not more than maxHP
+					playerN.setHP(playerN.getHP() + buffAmt);
+					//return;
+				}
+				else {
+					//you waste some but fill HP
+					playerN.setHP(playerN.getMaxHP());
+				}
+			}
 		}
 		else if (it.getStats().first == "Def") {
 			playerN.setDef(playerN.getDef() + buffAmt);
@@ -179,7 +228,11 @@ void Game::equipItem(Item& it) {
 			playerN.setStr(playerN.getStr() + buffAmt);
 		}
 	}
+	else {
+		std::cout << "Thats not a valid choice\n";
 	}
+	}
+	
 }
 
 void Game::remove_item(Item a) {
@@ -360,7 +413,10 @@ void Game::displayMapsAvailable() {
 	
 	std::cout << "Which mission do you choose?: ";
 	std::cin >> missionchoice;
-	
+	if (missionchoice > 3) {
+		std::cout << "That wasnt a valid option \n";
+		return;
+	}
 	ShownMissions = holder[missionchoice - 1];
 	for (auto& item : ShownMissions) {
 		currentDunNum = item.first;
@@ -374,7 +430,7 @@ bool Game::startMission() {
 	bool success = false;
 	char option;
 	
-	currentDunLvl = playerN.getLvl();//this will change and each location on the map will have a distinct number
+	currentDunLvl = playerN.location;//this will change and each location on the map will have a distinct number
 	while (tryAgain) {
 		//getLocationName(currentDunNum);//we can just pass the name in from prev function to get name of dungeon entered
 		Map newMap;
@@ -459,7 +515,10 @@ void Game::displayStore(int lvl) {
 	if (response == 'y' || response == 'Y') {
 		 return displayStore(lvl);
 	}
-	std::cout << "Come again!" << std::endl;
+	else {
+		std::cout << "Come again!" << std::endl;
+	}
+	
 }
 
 
@@ -768,7 +827,7 @@ void EnemyAttacks(Character& p1, Character& en) {
 	int battleroll = rand() % 6 + 1;
 	int damageDone = 0;
 	if (p1.getDodge() != battleroll) {
-		damageDone = (enemyatk - p1.getDef());
+		damageDone = (enemyatk - p1.getDef()) > 0 ? (enemyatk - p1.getDef()): 0;
 		p1.setHP(p1.getHP() - damageDone);
 		std::cout << "You were too slow. You've received " << damageDone << " damage." << std::endl;
 	}
@@ -786,7 +845,7 @@ void PlayerAttacks(Character& p1, Character& en) {
 	//enemy attempts to dodge
 	battleroll = rand() % 6 + 1;
 	if (en.getDodge() != battleroll) {
-		damageDone = (playeratk - en.getDef());
+		damageDone = (playeratk - en.getDef()) > 0 ? (playeratk - en.getDef()) :0 ;
 		en.setHP(en.getHP() - damageDone);
 		std::cout << "You're attack strikes true. " << damageDone << " damage dealt. " << std::endl;
 	}
@@ -852,6 +911,12 @@ bool Map::bossBattle(int loc,int dunNum, Player& p1) {
 		totalGold += newBoss.getGold();
 		p1.setGold(p1.getGold() + totalGold);
 		p1.setXP(p1.getXP() + totalXP);
+
+		auto it = Game::getinstance().playerN.Lvlrequirements.find(newBoss.getName()); //this is to find if the current beaten boss is part of the lvl up req
+		if (it != Game::getinstance().playerN.Lvlrequirements.end()) {
+			//we found it as a req
+			it->second = true;
+		}
 		return true;
 	}
 	std::cout << "You've fallen in battle" << std::endl;
@@ -1108,7 +1173,10 @@ void GameConsole::display()const {
 void GameConsole::options() {
 	int option;
 	bool displayOptions = true;
-
+	if (Game::getinstance().playerN.can_level_up()) {
+		std::cout << "Congratulations! You've leveled up to : " << Game::getinstance().playerN.getLvl() << '\n';
+		std::cout << "Check your new stats by choosing display all from the below options \n";
+	}
 	while (displayOptions) {
 		std::cout << "\n1.) Travel" << std::endl;
 		std::cout << "2.) Enter Mission" << std::endl;
@@ -1125,6 +1193,12 @@ void GameConsole::options() {
 			switch (option) {
 			case 1:
 				//shows available islands
+			{
+				int placeToTravel = Game::getinstance().TravelonWorldMap();
+				if (placeToTravel > 0) {
+					Game::getinstance().playerN.location = placeToTravel;
+				}
+			}
 				break;
 			case 2:
 				//shows islands quests

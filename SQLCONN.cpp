@@ -2,6 +2,7 @@
 #include <sql.h>
 #include <sqlext.h>
 #include "SQLCONN.h"
+#include "Player.h"
 #include <iostream>
 #include "Game.h"
 #include <codecvt>
@@ -516,6 +517,7 @@ bool SQLCONN::loadPlayerData(const std::string& a) {
 		return false;
 	}
 	SQLHSTMT hStmt;
+	
 	SQLAllocHandle(SQL_HANDLE_STMT, sqlConnection, &hStmt);
 
 	SQLWCHAR* sqlQuery = (SQLWCHAR*)L"SELECT * FROM Player WHERE playerName = ?";
@@ -580,32 +582,53 @@ bool SQLCONN::loadPlayerData(const std::string& a) {
 		SQLGetData(hStmt, 30, SQL_C_LONG, &GoldAmt, 0, NULL);
 		SQLGetData(hStmt, 31, SQL_C_LONG, &XP, 0, NULL);
 
-		// Populate Enemy object
-		Game::getinstance().playerN.location = currentLocation;
-		//Game::getinstance().playerN.changeName(reinterpret_cast<char*>(playerName));
-		Game::getinstance().playerN.setHP(HP);
-		Game::getinstance().playerN.setMP(MP);
-		Game::getinstance().playerN.setStr(Str);
-		Game::getinstance().playerN.setDef(Def);
-		Game::getinstance().playerN.setSpd(Spd);
-		Game::getinstance().playerN.setDodge(dodge);
+		// Populate 
+		std::string name = a;
+		Player p1(name);
+		p1.LoadedInfo = true;
+		p1.location = currentLocation;
+		p1.setHP(HP);
+		p1.setMP(MP);
+		p1.setStr(Str);
+		p1.setDef(Def);
+		p1.setSpd(Spd);
+		p1.setDodge(dodge);
+
+		//Game::getinstance().playerN.location = currentLocation;
+		////Game::getinstance().playerN.changeName(reinterpret_cast<char*>(playerName));
+		//Game::getinstance().playerN.setHP(HP);
+		//Game::getinstance().playerN.setMP(MP);
+		//Game::getinstance().playerN.setStr(Str);
+		//Game::getinstance().playerN.setDef(Def);
+		//Game::getinstance().playerN.setSpd(Spd);
+		//Game::getinstance().playerN.setDodge(dodge);
 		std::string convertedSkill1 = reinterpret_cast<char*>(Skill1Desc);
 		std::string convertedSkill2 = reinterpret_cast<char*>(Skill2Desc);
 		std::string convertedSkill3 = reinterpret_cast<char*>(Skill3Desc);
 		std::string convertedSkill4 = reinterpret_cast<char*>(Skill4Desc);
 		std::string convertedSkill5 = reinterpret_cast<char*>(Skill5Desc);
 		std::string convertedSkill6 = reinterpret_cast<char*>(Skill6Desc);
-		Game::getinstance().playerN.updateATKList(convertedSkill1, Skill1);
-		Game::getinstance().playerN.updateATKList(convertedSkill2, Skill2);
-		Game::getinstance().playerN.updateATKList(convertedSkill3, Skill3);
-		Game::getinstance().playerN.updateATKList(convertedSkill4, Skill4);
-		Game::getinstance().playerN.updateATKList(convertedSkill5, Skill5);
-		Game::getinstance().playerN.updateATKList(convertedSkill6, Skill6);
-		Game::getinstance().playerN.setlvl(level);
+		p1.updateATKList(convertedSkill1, Skill1);
+		p1.updateATKList(convertedSkill2, Skill2);
+		p1.updateATKList(convertedSkill3, Skill3);
+		p1.updateATKList(convertedSkill4, Skill4);
+		p1.updateATKList(convertedSkill5, Skill5);
+		p1.updateATKList(convertedSkill6, Skill6);
+		p1.setlvl(level);
+		p1.setMax_HP(MaxHP);
+		p1.setGold(GoldAmt);
+		p1.setXP(XP);
+		//Game::getinstance().playerN.updateATKList(convertedSkill1, Skill1);
+		//Game::getinstance().playerN.updateATKList(convertedSkill2, Skill2);
+		//Game::getinstance().playerN.updateATKList(convertedSkill3, Skill3);
+		//Game::getinstance().playerN.updateATKList(convertedSkill4, Skill4);
+		//Game::getinstance().playerN.updateATKList(convertedSkill5, Skill5);
+		//Game::getinstance().playerN.updateATKList(convertedSkill6, Skill6);
+		/*Game::getinstance().playerN.setlvl(level);
 		Game::getinstance().playerN.setMax_HP(MaxHP);
 		Game::getinstance().playerN.setGold(GoldAmt);
-		Game::getinstance().playerN.setXP(XP);
-		
+		Game::getinstance().playerN.setXP(XP);*/
+		Game::getinstance().playerN = p1;
 	}
 	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	disconnect();

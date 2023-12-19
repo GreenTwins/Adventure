@@ -7,7 +7,7 @@
 class Player : public Character {
 	int numofAtks = 6;
 	int lvl{ 1 };
-	bool LoadedInfo = false;
+	
 	int MAX_HP = 0;
 	
 public:
@@ -19,11 +19,14 @@ public:
 	void setlvl(int lvl);
 	void refillHP();
 	//ATK
+	void init();
 	void createATK(int num);
 	int attack()override;
 	virtual void displayStats(bool Eloop) const override;
 	void CreateStats();
 	bool can_level_up();
+	std::map<std::string, bool>Lvlrequirements;
+	void loadLvlReq();
 	//EXP
 	void setMax_HP(int a);
 	int getMaxHP()const;
@@ -36,7 +39,7 @@ public:
 	std::pair<std::string, int>attack5;
 	std::pair<std::string, int>attack6;
 	//INVENTORY
-	
+	bool LoadedInfo = false;
 };
 
 

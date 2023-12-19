@@ -7,11 +7,25 @@
 Player::Player() {
 }
 Player::Player(std::string& s) :Character{ s } {
+	
+}
+void Player::init() {
 	MAX_HP = 100;
-	CreateStats();
-	createATK(6);
-	displayStats(1);
-	setXP(0);
+	loadLvlReq();
+	if(!LoadedInfo){
+		CreateStats();
+		createATK(6);
+		displayStats(1);
+		setXP(0);
+
+	}
+	
+}
+void Player::loadLvlReq() {
+	std::vector <std::string>reqList= {"Troll"};
+	for (std::string& item : reqList) {
+		Lvlrequirements.insert(std::make_pair(item, false));
+	}
 }
 int Player::getLvl()const {
 	return lvl;
@@ -46,12 +60,24 @@ void Player::increaseStats() {
 
 }
 bool Player::can_level_up() {
-	if (getXP() > 150) {
-		increaseStats();
-		increaseHealth(getLvl());
-		return true;
+	bool lvlUP = false;
+	int localLvl = getLvl();
+	switch (localLvl) {
+	case 1:
+	{
+		if ((getXP() > 200) && (Lvlrequirements["Troll"] == true)) {
+			increaseStats();
+			increaseHealth(getLvl());
+			lvlUP = true;
+		}
+		
 	}
-	return false;
+	break;
+	default: 
+		std::cout << "The lvl given doesnt match with the required" << std::endl;
+		break;
+	}
+	return lvlUP;
 }
 void Player::createATK(int num) {
 	std::string atk;

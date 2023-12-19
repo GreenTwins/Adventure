@@ -139,6 +139,7 @@ public:
 	int currentDunLvl = 0;
 	bool newChar = false;
 	Player playerN;
+	//map and dungeon creation
 	std::vector<Map>maps;
 	std::map<int, int>nextPathTracker;
 	std::vector<std::map<int, std::string>>AllMissions;
@@ -181,7 +182,12 @@ public:
 	void unequipItem(Item& i);
 	void remove_item(Item i);
 	std::map<std::string, bool>activeItems;
+	std::vector<std::string>BossReq;
 
+	//world map
+	std::vector<std::map<std::string, bool>>world_map; //bool for visibility based on level if false user cant see name nor choose
+	void uploadWorldMap();
+	int TravelonWorldMap();
 };
 
 
