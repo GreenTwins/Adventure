@@ -68,6 +68,7 @@ bool Player::can_level_up() {
 		if ((getXP() > 200) && (Lvlrequirements["Troll"] == true)) {
 			increaseStats();
 			increaseHealth(getLvl());
+			setlvl(2);
 			lvlUP = true;
 		}
 		

@@ -52,6 +52,8 @@ public:
 	//SPOILS FROM BATTLE
 	int totalGold = 0;
 	int totalXP = 0;
+	int XpCap = 0;
+	void findXpCap(int playerLvl);
 	
 	//Players Map/Move tracker
 	std::map<int, std::list<int>>MoveTracker;
@@ -62,7 +64,7 @@ public:
 	bool checkVisited(int n);
 	void upDateTracker();
 	void displayTracker();
-	int inGameInputs();
+	int inGameInputs(std::vector<int>currentMoves);
 };
 
 #endif

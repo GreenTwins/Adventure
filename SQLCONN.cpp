@@ -587,6 +587,7 @@ bool SQLCONN::loadPlayerData(const std::string& a) {
 		Player p1(name);
 		p1.LoadedInfo = true;
 		p1.location = currentLocation;
+		p1.init();
 		p1.setHP(HP);
 		p1.setMP(MP);
 		p1.setStr(Str);

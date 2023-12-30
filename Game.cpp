@@ -595,6 +595,7 @@ MAP CLASS init,cleaner, getters and setters
 *******************************************************************************************************/
 Map::Map() {
 	loadMapData();
+	findXpCap(Game::getinstance().playerN.getLvl());
 }
 Map::~Map() {}
 
@@ -817,6 +818,23 @@ void Map::loadMapData() {
 	locationData[9].push_back(1);
 	//locations.push_back(locationData);
 }
+void Map::findXpCap(int currentLvl) {
+	//used to stop the increase of XP until lvl up requirements met
+	switch (currentLvl) {
+	case 1:
+		XpCap = 200;
+		break;
+	case 2:
+		XpCap = 450;
+		break;
+	case 3:
+		XpCap = 680;
+		break;
+	default:
+		std::cout << "Ran into an error calculating xpCap" << std::endl;
+		break;
+	}
+}
 void Map::add(int s, int d) {
 	mapp[s].push_back(d);
 	mapp[d].push_back(s);
@@ -910,11 +928,18 @@ bool Map::bossBattle(int loc,int dunNum, Player& p1) {
 		totalXP += newBoss.getXP();
 		totalGold += newBoss.getGold();
 		p1.setGold(p1.getGold() + totalGold);
-		p1.setXP(p1.getXP() + totalXP);
+		if (XpCap > p1.getXP()) {
+			p1.setXP(p1.getXP() + totalXP);
+		}
+		else {
+			std::cout << "You've reached the maximum amount of XP you can gain at this level. Complete remaining requirements to level up! \n";
+		}
+		
 
 		auto it = Game::getinstance().playerN.Lvlrequirements.find(newBoss.getName()); //this is to find if the current beaten boss is part of the lvl up req
 		if (it != Game::getinstance().playerN.Lvlrequirements.end()) {
 			//we found it as a req
+			std::cout << "You've completed the level up requirement. Evaluating....\n";
 			it->second = true;
 		}
 		return true;
@@ -954,7 +979,7 @@ std::unique_ptr<bool>Map::DungeonBattle(Player& pl, std::unique_ptr<Enemy>& en) 
 }
 
 
-int Map::inGameInputs() {
+int Map::inGameInputs(std::vector<int>a) {
 	int movement = 0;
 	std::string input;
 
@@ -964,7 +989,16 @@ int Map::inGameInputs() {
 		if (std::cin >> movement) {
 			// Handle integer input
 			// Perform actions based on the integer input (if needed)
-			break; // Exit the loop if an integer input is received
+			if ((movement < 8)&&(movement > 0)) {
+				std::vector<int>::iterator temp;
+				auto it = find(a.begin(), a.end(), movement);
+				if (it != a.end()) {
+					break;// Exit the loop if an integer input is received and is part of the displayed moves available
+				}
+				
+			}
+			std::cout << "The attempted movement is invalid. Try again. ";
+			
 		}
 		else {
 			// Clear input stream state and discard invalid input
@@ -1030,13 +1064,16 @@ int Map::availableMoves(int a) {
 		totalGold += newEnemy.getGold();
 	}
 	//InGameDecisions(std::cin);
+	std::vector<int>availableMoveList;
 	std::cout << "The following pathways are available from here: ";
 		for (auto neighbor : mapp[a]) {
 			std::cout << "[ " << neighbor << " ";
+			availableMoveList.push_back(neighbor);
 		}
 		std::cout << "]";
 		
-		int temp= inGameInputs();
+		int temp= inGameInputs(availableMoveList);
+		availableMoveList.clear();
 		nextPlacement = temp;
 		upDateTracker();
 		return temp;
@@ -1173,11 +1210,13 @@ void GameConsole::display()const {
 void GameConsole::options() {
 	int option;
 	bool displayOptions = true;
-	if (Game::getinstance().playerN.can_level_up()) {
-		std::cout << "Congratulations! You've leveled up to : " << Game::getinstance().playerN.getLvl() << '\n';
-		std::cout << "Check your new stats by choosing display all from the below options \n";
-	}
+
 	while (displayOptions) {
+		if (Game::getinstance().playerN.can_level_up()) {
+			std::cout << "Congratulations! You've leveled up to : " << Game::getinstance().playerN.getLvl() << '\n';
+			std::cout << "Check your new stats by choosing display all from the below options \n";
+		}
+
 		std::cout << "\n1.) Travel" << std::endl;
 		std::cout << "2.) Enter Mission" << std::endl;
 		std::cout << "3.) Go to Inventory" << std::endl;
