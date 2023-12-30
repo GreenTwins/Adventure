@@ -367,16 +367,21 @@ void Game::loadAllMissions() {
 		Desc= { "Grove", "Thicket", "Woodland", "backwoods", "growth", "woods", "woods", "wildwood", "woodlot", "park" ,"timber", "wilderness" };
 		Names= { "Wandering ", "Treacherous ", "Mystic ", "Undergrowth ", "Bald ", "Foggy ", "Myswerks ", "Elevated ", "Hyde " };
 	}
-	else  {
+	else if(currentLocation ==2) {
 		//will update later
-		Desc = { "Grove", "Thicket", "Woodland", "backwoods", "growth", "woods", "woods", "wildwood", "woodlot", "park" ,"timber", "wilderness" };
-		Names = { "Wandering ", "Treacherous ", "Mystic ", "Undergrowth ", "Bald ", "Foggy ", "Myswerks ", "Elevated ", "Hyde " };
+		Names = { "Evergreen", "Perfect", "Untamed", "Green", "White", "High", "Suicide", "Hanging Neck", "Enders", "Jaded" ,"North", "Dark" };
+		Desc = { "Grim ", "Wilderness ", "Bloodweed ", "Forest ", "Pines ", "Covert ", "Holt ", "Glade ","Wilds"};
+	}
+	else {
+		Names = { "The Enders", "Forsaken", "The abyssal", "Ketes", "Lord Kens", "The silent", "", "The Nightmare", "Petrified", "Crumbling" ,"Silent" };
+		Desc = { "Vault ", "Borough ", "Blight ", "abandoned city ", "Outpost ", "Covert ", "village ","Lands", "ruins", "wreckage"};
 	}
 	for (int i = 0; i < 6; ++i) {
 		int mapDesc = rand() % (Desc.size()) + 1;
 		int mapName = rand() % (Names.size()) + 1;
 		std::string MissionTitle = ((Names[mapName-1]) + (Desc[mapDesc-1]));
 		locationforMissions[i+1] = MissionTitle; //this gets pulled to give player and map the dungeon number
+
 		std::map<int, std::string>MapData; 
 		//locationforMissions[i] = MissionTitle;//load dunNum
 		MapData[i+1] = MissionTitle; //this just gives the title and the actual location
@@ -398,6 +403,7 @@ void Game::displayMapsAvailable() {
 	int i = 1;
 
 	while (holder.size() < 3) {
+		//any duplicate titles can be found here. We arent making sure that doesnt happen. Should do for the loading of 6
 		int choice = (rand() % (AllMissions.size()) + 1);
 		if (choiceHistory[choice]==0) {
 			choiceHistory[choice]++;
