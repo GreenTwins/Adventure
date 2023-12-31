@@ -22,7 +22,7 @@ void Player::init() {
 	
 }
 void Player::loadLvlReq() {
-	std::vector <std::string>reqList= {"Troll"};
+	std::vector <std::string>reqList= {"Troll","Lesser Wardevil", "Lich"};
 	for (std::string& item : reqList) {
 		Lvlrequirements.insert(std::make_pair(item, false));
 	}
@@ -30,8 +30,8 @@ void Player::loadLvlReq() {
 int Player::getLvl()const {
 	return lvl;
 }
-void Player::setlvl(int lvl) {
-	lvl = lvl;//looks wild huh?
+void Player::setlvl(int newlvl) {
+	lvl = newlvl;
 }
 void Player::setMax_HP(int maxhp) {
 	MAX_HP = maxhp;
@@ -46,6 +46,17 @@ void Player::increaseHealth(int lvl) {
 	if (lvl == 1) {
 		setMax_HP(150);
 		setHP(getMaxHP());
+	}
+	else if (lvl == 2) {
+		setMax_HP(250);
+		setHP(getMaxHP());
+	}
+	else if (lvl == 3) {
+		setMax_HP(400);
+		setHP(getMaxHP());
+	}
+	else {
+		std::cout << "Coming soon.. ";
 	}
 	displayStats(true);
 }
@@ -65,13 +76,33 @@ bool Player::can_level_up() {
 	switch (localLvl) {
 	case 1:
 	{
-		if ((getXP() > 200) && (Lvlrequirements["Troll"] == true)) {
+		if ((getXP() >= 200) && (Lvlrequirements["Troll"] == true)) {
 			increaseStats();
 			increaseHealth(getLvl());
 			setlvl(2);
 			lvlUP = true;
 		}
 		
+	}
+	break;
+	case 2:
+	{
+		if ((getXP() >= 500) && (Lvlrequirements["Lesser Wardevil"] == true)) {
+			increaseStats();
+			increaseHealth(getLvl());
+			setlvl(3);
+			lvlUP = true;
+		}
+	}
+	break;
+	case 3:
+	{
+		if ((getXP() >= 960) && (Lvlrequirements["Lich"] == true)) {
+			increaseStats();
+			increaseHealth(getLvl());
+			setlvl(4);
+			lvlUP = true;
+		}
 	}
 	break;
 	default: 

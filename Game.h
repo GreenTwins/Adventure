@@ -184,7 +184,7 @@ public:
 	void unequipItem(Item& i);
 	void remove_item(Item i);
 	std::map<std::string, bool>activeItems;
-	std::vector<std::string>BossReq;
+	//std::vector<std::string>BossReq;
 
 	//world map
 	std::vector<std::map<std::string, bool>>world_map; //bool for visibility based on level if false user cant see name nor choose

@@ -16,7 +16,7 @@ Game::Game() {
 	master.display();*/
 	enemyList.clear();
 	locations.clear();
-	BossReq.push_back("Troll");
+	//BossReq.push_back("Troll"); not used
 	uploadWorldMap();
 }
 Game::~Game() {
@@ -29,7 +29,7 @@ void Game::fromLocal(bool i) {
 	onlocal = i;
 }
 void Game::uploadWorldMap() {
-	std::vector<std::string>world_mapNames = { "Realm of Qiteoria", "Realm of Reperion","City of Ibburyon","The Echo Lands","The Barrens","The Reach of Dreams","Lands of the Broken","The Hells Vale" };
+	std::vector<std::string>world_mapNames = { "Realm of Qiteoria", "Realm of Reperion: Dark Forest","Ruined Settlement of Ibburyon","The Echo Lands","The Barrens","The Reach of Dreams","Lands of the Broken","The Hells Vale" };
 	
 	for (std::string maps : world_mapNames) {
 		std::map<std::string, bool>mapItem;
@@ -86,7 +86,13 @@ int Game::TravelonWorldMap() {
 		std::cout << "The choice given is invalid \n";
 		return -1;
 	}
-	std::cout << "Moving to new region....\n";
+	std::cout << "Travelling to new region....\n";
+    //get the name
+	/*for (auto location : world_map) {
+		for (auto location_name : location) {
+			std::cout << "You've arrived at: " << location_name.first << "\n";
+		}
+	}*/
 	return travelLocation;
 }
 void Game::loadEnemies(int loc, int dunNum, std::vector<Enemy>&e) {
@@ -142,16 +148,16 @@ void Game::unequipItem(Item& it) {
 			gotIt.set_EquipOff(); //turns inventory item off
 			activeItems[gotIt.getItemName()] = false; //turns equip marker off
 			int buffRemoved = gotIt.getStats().second;
-			if (gotIt.getType() == "Def") {
+			if (gotIt.getStats().first == "Def") {
 				playerN.setDef(playerN.getDef() - buffRemoved);
 			}
-			else if(gotIt.getType()=="Str"){
+			else if(gotIt.getStats().first =="Str"){
 				playerN.setStr(playerN.getStr() - buffRemoved);
 			}
 			else {
 				std::cout << "Empty potion removed" << std::endl;
-				activeItems[gotIt.getType()] = false;
 			}
+			activeItems[gotIt.getType()] = false;
 		}
 	}
 }
@@ -363,13 +369,14 @@ void Game::loadAllMissions() {
 	std::vector<std::string>Desc;
 	std::vector<std::string>Names;
 	int currentLocation = Game::getinstance().playerN.location;
+	AllMissions.clear();
 	if (currentLocation == 1) {
 		Desc= { "Grove", "Thicket", "Woodland", "backwoods", "growth", "woods", "woods", "wildwood", "woodlot", "park" ,"timber", "wilderness" };
 		Names= { "Wandering ", "Treacherous ", "Mystic ", "Undergrowth ", "Bald ", "Foggy ", "Myswerks ", "Elevated ", "Hyde " };
 	}
 	else if(currentLocation ==2) {
 		//will update later
-		Names = { "Evergreen", "Perfect", "Untamed", "Green", "White", "High", "Suicide", "Hanging Neck", "Enders", "Jaded" ,"North", "Dark" };
+		Names = { "Evergreen ", "Perfect ", "Untamed ", "Green ", "White ", "High ", "Suicide ", "Hanging Neck ", "Enders ", "Jaded " ,"North ", "Dark " };
 		Desc = { "Grim ", "Wilderness ", "Bloodweed ", "Forest ", "Pines ", "Covert ", "Holt ", "Glade ","Wilds"};
 	}
 	else {
@@ -995,7 +1002,7 @@ int Map::inGameInputs(std::vector<int>a) {
 		if (std::cin >> movement) {
 			// Handle integer input
 			// Perform actions based on the integer input (if needed)
-			if ((movement < 8)&&(movement > 0)) {
+			if ((movement <= 8)&&(movement > 0)) {
 				std::vector<int>::iterator temp;
 				auto it = find(a.begin(), a.end(), movement);
 				if (it != a.end()) {
@@ -1216,10 +1223,11 @@ void GameConsole::display()const {
 void GameConsole::options() {
 	int option;
 	bool displayOptions = true;
-
+	Game& currentGame = Game::getinstance();
 	while (displayOptions) {
-		if (Game::getinstance().playerN.can_level_up()) {
-			std::cout << "Congratulations! You've leveled up to : " << Game::getinstance().playerN.getLvl() << '\n';
+		//check if there is a level up
+		if (currentGame.playerN.can_level_up()) {
+			std::cout << "Congratulations! You've leveled up to : " << currentGame.playerN.getLvl() << '\n';
 			std::cout << "Check your new stats by choosing display all from the below options \n";
 		}
 
@@ -1239,28 +1247,29 @@ void GameConsole::options() {
 			case 1:
 				//shows available islands
 			{
-				int placeToTravel = Game::getinstance().TravelonWorldMap();
+				int placeToTravel = currentGame.TravelonWorldMap();
 				if (placeToTravel > 0) {
-					Game::getinstance().playerN.location = placeToTravel;
+					currentGame.playerN.location = placeToTravel;
+					currentGame.getLocationName(placeToTravel);
 				}
 			}
 				break;
 			case 2:
 				//shows islands quests
-				Game::getinstance().displayMapsAvailable();
-				Game::getinstance().startMission();
+				currentGame.displayMapsAvailable();
+				currentGame.startMission();
 
 				break;
 			case 3:
-				Game::getinstance().displayInventory();
+				currentGame.displayInventory();
 				break;
 			case 4:
-				Game::getinstance().loadStore();
-				Game::getinstance().displayStore(Game::getinstance().playerN.getLvl());
+				currentGame.loadStore();
+				currentGame.displayStore(currentGame.playerN.getLvl());
 				break;
 			case 5:
 				display();
-				Game::getinstance().playerN.displayStats(true);
+				currentGame.playerN.displayStats(true);
 				break;
 			case 6:
 				saveState();
