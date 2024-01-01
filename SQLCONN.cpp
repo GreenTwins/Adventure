@@ -504,6 +504,7 @@ bool SQLCONN::sqlSave() {
 		SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
 		std::wcerr << "SQLExecute failed with error: " << message << std::endl;
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		disconnect();
 		return false;
 	}
 	std::cout << "Player data save!" << std::endl;
