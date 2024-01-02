@@ -697,7 +697,6 @@ bool SQLCONN::InvSave() {
 		SQLRETURN ret;
 		//if new char then new entry
 		
-		std::cout << "Saving inventory data for playerID: "<<playerID<<"..." << std::endl;
 		sqlQuery = (SQLWCHAR*)L"INSERT INTO PlayerInventory (playerID, isEquip, itemName, StrBuff, DefBuff, HPBuff, itemType)"
 			L"VALUES (?,?,?,?,?,?,?)";
 		 
@@ -735,7 +734,7 @@ bool SQLCONN::InvSave() {
 			return false;
 		}
 		std::cout << "Inventory item "<< currentInventory+1 <<" saved!\n";
-
+		currentInventory++;
 		
 	}
 	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
