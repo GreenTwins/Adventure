@@ -429,7 +429,7 @@ bool SQLCONN::sqlSave() {
 	currentLocation = Game::getinstance().playerN.location;
 	
 	//convert for 
-	std::cout << currentLocation << std::endl;
+	//std::cout << currentLocation << std::endl;
 
 	SQLHSTMT hStmt;
 	SQLAllocHandle(SQL_HANDLE_STMT, sqlConnection, &hStmt);
@@ -439,7 +439,7 @@ bool SQLCONN::sqlSave() {
 	if (Game::getinstance().newChar) {
 		//save to sql
 		std::cout << "Saving new data..." << std::endl;
-		sqlQuery = (SQLWCHAR*)L"INSERT INTO Player (currentLocation, playerName, HP, MP, Str, Def, Spd, dodge, Skill1,Skill2,Skill3,Skill4,Skill5,Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc, level, maxHP,xp,gold)" 
+		sqlQuery = (SQLWCHAR*)L"INSERT INTO Player (currentLocation, playerName, HP, MP, Str, Def, Spd, dodge, Skill1,Skill2,Skill3,Skill4,Skill5,Skill6, Skill1Desc, Skill2Desc, Skill3Desc, Skill4Desc, Skill5Desc, Skill6Desc, level, maxHP,XP,GoldAmt)" 
 			L"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 		 ret= SQLPrepare(hStmt, sqlQuery, SQL_NTS);
@@ -452,11 +452,36 @@ bool SQLCONN::sqlSave() {
 			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 			return false;
 		}
-		
+		Game::getinstance().newChar = false;
+		SQLLEN stringLength = SQL_NTS;
+		ret = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &currentLocation, 0, NULL);
+		ret = SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)playerName.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 3, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &HP, 0, NULL);
+		ret = SQLBindParameter(hStmt, 4, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &MP, 0, NULL);
+		ret = SQLBindParameter(hStmt, 5, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Str, 0, NULL);
+		ret = SQLBindParameter(hStmt, 6, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Def, 0, NULL);
+		ret = SQLBindParameter(hStmt, 7, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Spd, 0, NULL);
+		ret = SQLBindParameter(hStmt, 8, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &dodge, 0, NULL);
+		ret = SQLBindParameter(hStmt, 9, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill1, 0, NULL);
+		ret = SQLBindParameter(hStmt, 10, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill2, 0, NULL);
+		ret = SQLBindParameter(hStmt, 11, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill3, 0, NULL);
+		ret = SQLBindParameter(hStmt, 12, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill4, 0, NULL);
+		ret = SQLBindParameter(hStmt, 13, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill5, 0, NULL);
+		ret = SQLBindParameter(hStmt, 14, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill6, 0, NULL);
+		ret = SQLBindParameter(hStmt, 15, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill1Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 16, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill2Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 17, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill3Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 18, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill4Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 19, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill5Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 20, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill6Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 21, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &level, 0, NULL);
+		ret = SQLBindParameter(hStmt, 22, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &maxHP, 0, NULL);
+		ret = SQLBindParameter(hStmt, 23, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &xp, 0, NULL);
+		ret = SQLBindParameter(hStmt, 24, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &gold, 0, NULL);
 	}
 	else {
 		//use update
-		sqlQuery = (SQLWCHAR*)L"UPDATE Player SET currentLocation=?, HP=?, MP=?, Str=?, Def=?, Spd=?, dodge=?, Skill1=?, Skill2=?, Skill3=?, Skill4=?, Skill5=?, Skill6=?, Skill1Desc=?, Skill2Desc=?, Skill3Desc=?, Skill4Desc=?, Skill5Desc=?, Skill6Desc=?, level=?, maxHP=?, xp=?, gold=? WHERE playerName=?";
+		sqlQuery = (SQLWCHAR*)L"UPDATE Player SET currentLocation=?, HP=?, MP=?, Str=?, Def=?, Spd=?, dodge=?, Skill1=?, Skill2=?, Skill3=?, Skill4=?, Skill5=?, Skill6=?, Skill1Desc=?, Skill2Desc=?, Skill3Desc=?, Skill4Desc=?, Skill5Desc=?, Skill6Desc=?, level=?, MaxHP=?, XP=?, GoldAmt=? WHERE playerName=?";
 
 		ret = SQLPrepare(hStmt, sqlQuery, SQL_NTS);
 		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
@@ -468,32 +493,33 @@ bool SQLCONN::sqlSave() {
 			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 			return false;
 		}
+		SQLLEN stringLength = SQL_NTS;
+		ret = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &currentLocation, 0, NULL);
+		ret = SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &HP, 0, NULL);
+		ret = SQLBindParameter(hStmt, 3, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &MP, 0, NULL);
+		ret = SQLBindParameter(hStmt, 4, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Str, 0, NULL);
+		ret = SQLBindParameter(hStmt, 5, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Def, 0, NULL);
+		ret = SQLBindParameter(hStmt, 6, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Spd, 0, NULL);
+		ret = SQLBindParameter(hStmt, 7, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &dodge, 0, NULL);
+		ret = SQLBindParameter(hStmt, 8, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill1, 0, NULL);
+		ret = SQLBindParameter(hStmt, 9, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill2, 0, NULL);
+		ret = SQLBindParameter(hStmt, 10, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill3, 0, NULL);
+		ret = SQLBindParameter(hStmt, 11, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill4, 0, NULL);
+		ret = SQLBindParameter(hStmt, 12, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill5, 0, NULL);
+		ret = SQLBindParameter(hStmt, 13, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill6, 0, NULL);
+		ret = SQLBindParameter(hStmt, 14, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill1Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 15, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill2Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 16, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill3Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 17, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill4Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 18, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill5Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 19, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill6Desc.c_str(), 0, &stringLength);
+		ret = SQLBindParameter(hStmt, 20, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &level, 0, NULL);
+		ret = SQLBindParameter(hStmt, 21, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &maxHP, 0, NULL);
+		ret = SQLBindParameter(hStmt, 22, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &xp, 0, NULL);
+		ret = SQLBindParameter(hStmt, 23, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &gold, 0, NULL);
+		ret = SQLBindParameter(hStmt, 24, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)playerName.c_str(), 0, &stringLength);
 	}
-	SQLLEN stringLength = SQL_NTS;
-	ret = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &currentLocation, 0, NULL);
-	ret = SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)playerName.c_str(), 0, &stringLength);
-	ret = SQLBindParameter(hStmt, 3, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &HP, 0, NULL); 
-	ret = SQLBindParameter(hStmt, 4, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &MP, 0, NULL);
-	ret = SQLBindParameter(hStmt, 5, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Str, 0, NULL);
-	ret = SQLBindParameter(hStmt, 6, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Def, 0, NULL);
-	ret = SQLBindParameter(hStmt, 7, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Spd, 0, NULL);
-	ret = SQLBindParameter(hStmt, 8, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &dodge, 0, NULL);
-	ret = SQLBindParameter(hStmt, 9, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill1, 0, NULL);
-	ret = SQLBindParameter(hStmt, 10, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill2, 0, NULL);
-	ret = SQLBindParameter(hStmt, 11, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill3, 0, NULL);
-	ret = SQLBindParameter(hStmt, 12, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill4, 0, NULL);
-	ret = SQLBindParameter(hStmt, 13, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill5, 0, NULL);
-	ret = SQLBindParameter(hStmt, 14, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &Skill6, 0, NULL);
-	ret = SQLBindParameter(hStmt, 15, SQL_PARAM_INPUT, SQL_C_CHAR,  SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill1Desc.c_str(), 0, &stringLength);
-	ret = SQLBindParameter(hStmt, 16, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill2Desc.c_str(), 0, &stringLength);
-	ret = SQLBindParameter(hStmt, 17, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill3Desc.c_str(), 0, &stringLength);
-	ret = SQLBindParameter(hStmt, 18, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill4Desc.c_str(), 0, &stringLength);
-	ret = SQLBindParameter(hStmt, 19, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill5Desc.c_str(), 0, &stringLength);
-	ret = SQLBindParameter(hStmt, 20, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)Skill6Desc.c_str(), 0, &stringLength);
-	ret = SQLBindParameter(hStmt, 21, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &level, 0, NULL);
-	ret = SQLBindParameter(hStmt, 22, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &maxHP, 0, NULL);
-	ret = SQLBindParameter(hStmt, 23, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &xp, 0, NULL);
-	ret = SQLBindParameter(hStmt, 24, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &gold, 0, NULL);
+	
 	
 
 	ret = SQLExecute(hStmt);

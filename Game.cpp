@@ -114,6 +114,7 @@ GAME CLASS player association
 void Game::createPlayer(std::string n) {
 	playerN=Player::Player(n);
 	newChar = true;
+	playerN.init();
 }
 
 void Game::displayInventory() {
@@ -127,9 +128,26 @@ void Game::displayInventory() {
 			Item item = Inventory[i];
 			std::cout << i + 1 << ".)Name: " << item.getItemName() << "\t Type: " << item.getType() << "\t Equpped: " <<std::boolalpha<<item.getIsEquip()<<std::endl;
 		}
-		std::cout << "Which item do you want to equip?: ";
-		std::cin >> choice;
-		equipItem(Inventory[choice - 1]);
+		std::cout << "Which item do you want to equip? ";
+		if (std::cin >> choice) {
+			if (Inventory.size() < 1) {
+				std::cout << "Your inventory is empty \n";
+				return;
+			}
+			else if ((choice - 1) > Inventory.size()) {
+				std::cout << "Your inventory is limited to " << Inventory.size() << " items\n";
+				return;
+			}
+			equipItem(Inventory[choice - 1]);
+		}
+		else {
+			std::cin.clear();
+			std::string escRequest;
+			std::cin >> escRequest;
+			std::cout << escRequest << " isnt a valid command\n";
+			std::cin.clear();
+			return;
+		}
 	}
 	else {
 		std::cout << "		" << playerN.getName() << "'s Inventory" << std::endl;
@@ -318,7 +336,7 @@ bool Game::PrePlay() {
 	char option;
 	currentDunLvl = 1;
 	currentDunNum = 1;
-	playerN.location = 1;
+	playerN.location = currentDunLvl;
 	while (tryAgain) {
 		getLocationName(1);//starting new
 		Map newMap;
@@ -511,27 +529,39 @@ void Game::displayStore(int lvl) {
 		std::cout << i + 1 << ".) Name:  " << name << "\t Price: " << price << "\t Type: " << type << "\t Buff: " << buff << std::endl;
 	}
 	int choice;
-	std::cout << "What would you like to purchase?: ";
-	std::cin >> choice;
-	if (StoreDisplay[choice - 1].getPrice() <= playerN.getGold()) {
-		int goldSpent = StoreDisplay[choice - 1].getPrice();
-		std::cout << "Purchase successful. Go to inventory to use" << std::endl;
-		Inventory.push_back(StoreDisplay[choice - 1]);
-		playerN.setGold(playerN.getGold() - goldSpent);
-	}
-	else {
-		std::cout << "You dont have enough money" << std::endl;
-	}
-	char response;
-	std::cout << "Do you still want to shop?(Y/N): ";
-	std::cin >> response;
-	if (response == 'y' || response == 'Y') {
-		 return displayStore(lvl);
-	}
-	else {
-		std::cout << "Come again!" << std::endl;
-	}
+	std::cout << "What would you like to purchase?[type 'none' to exit]: ";
 	
+	if (std::cin >> choice) {
+		if (choice <= StoreDisplay.size()) {
+			if (StoreDisplay[choice - 1].getPrice() <= playerN.getGold()) {
+				int goldSpent = StoreDisplay[choice - 1].getPrice();
+				std::cout << "Purchase successful. Go to inventory to use" << std::endl;
+				Inventory.push_back(StoreDisplay[choice - 1]);
+				playerN.setGold(playerN.getGold() - goldSpent);
+			}
+			else {
+				std::cout << "You dont have enough money" << std::endl;
+			}
+			char response;
+			std::cout << "Do you still want to shop?(Y/N): ";
+			std::cin >> response;
+			if (response == 'y' || response == 'Y') {
+				return displayStore(lvl);
+			}
+			else {
+				std::cout << "Come again!" << std::endl;
+			}
+		}
+		else {
+			std::cout << "That choice isnt a valid purchase option \n";
+		}
+	}
+	else {
+		std::cin.clear();
+		std::string escReq;
+		std::cin >> escReq;
+		std::cout << "Leaving store... \n";
+	}
 }
 
 
@@ -757,38 +787,7 @@ void Map::createPaths(int Location) {
 		std::cout << "(" << first << " , " << second << ")" << std::endl;
 		loadPathway(SMALL_MAP);
 
-	/*else if (Location > 2 && Location < 4) {
-		add(1, 2);
-		add(1, 3);
-		add(2, 4);
-		add(2, 6);
-		add(3, 8);
-		add(4, 5);
-		add(5, 6);
-		add(5, 7);
-		add(6, 8);
-		add(7, 10);
-		add(8, 9);
-		loadPathway(MEDIUM_MAP);
-		end = MEDIUM_MAP;
-	}
-	else {
-		add(1, 2);
-		add(1, 3);
-		add(2, 4);
-		add(2, 6);
-		add(3, 8);
-		add(3, 10);
-		add(4, 5);
-		add(5, 6);
-		add(6, 7);
-		add(8, 10);
-		add(8, 9);
-		add(9, 11);
-		add(11, 12);
-		loadPathway(LARGE_MAP);
-		end = LARGE_MAP;
-	}*/
+
 	std::cout << "created!" << std::endl;
 }
 void Map::loadMapData() {
@@ -929,7 +928,9 @@ bool Map::bossBattle(int loc,int dunNum, Player& p1) {
 		else {
 			// Player attacks first
 			PlayerAttacks(p1, newBoss);
-			BossAttacks(p1, newBoss);
+			if (newBoss.getHP() > 0) { //no boss attack from beyond the grave unless players health is less than their instant kill amount *tb added later
+				BossAttacks(p1, newBoss);
+			}
 		}
 
 		DisplayRoundData(p1, newBoss, currentRound);
@@ -971,12 +972,15 @@ std::unique_ptr<bool>Map::DungeonBattle(Player& pl, std::unique_ptr<Enemy>& en) 
 		if (pl.getSpd() <= en->getSpd()) {
 			// Enemy attacks first
 			EnemyAttacks(pl, *en);
-			PlayerAttacks(pl, *en);
+			PlayerAttacks(pl, *en);//player can land a kill from the grave attack- 
 		}
 		else {
 			// Player attacks first
 			PlayerAttacks(pl, *en);
-			EnemyAttacks(pl, *en);
+			if (en->getHP() > 0) {//enemy can only retaliate if they're alive...
+			   EnemyAttacks(pl, *en);
+			}
+			
 		}
 
 		DisplayRoundData(pl, *en, currentRound);
