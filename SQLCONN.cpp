@@ -392,6 +392,58 @@ void loadATKfromPlayer() {
 	}
 	
 }
+
+bool SQLCONN::getplayerID() {
+	if (!connect()) {
+		return false;
+	}
+	SQLINTEGER  playerID;
+	SQLHSTMT hStmt;
+	SQLAllocHandle(SQL_HANDLE_STMT, sqlConnection, &hStmt);
+	SQLWCHAR* sqlQuery = nullptr;
+	SQLRETURN ret;
+	sqlQuery = (SQLWCHAR*)L"SELECT playerID FROM Player WHERE playerName=?";
+	ret = SQLPrepare(hStmt, sqlQuery, SQL_NTS);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLCHAR sqlState[6], message[SQL_MAX_MESSAGE_LENGTH];
+		SQLINTEGER nativeError;
+		SQLSMALLINT length;
+		SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
+		std::wcerr << "SQLPrepare failed with error: " << message << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return false;
+	}
+
+	std::string name = Game::getinstance().playerN.getName();
+	ret = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 255, 0, (SQLPOINTER*)name.c_str(), name.size(), NULL);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLCHAR sqlState[6], message[SQL_RETURN_CODE_LEN];
+		SQLINTEGER nativeError;
+		SQLSMALLINT length;
+		SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
+		std::wcerr << "SQLBindParameter failed with error: " << message << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return false;
+	}
+	ret = SQLExecute(hStmt);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLCHAR sqlState[SQL_SQLSTATE_SIZE + 1], message[SQL_MAX_MESSAGE_LENGTH];
+		SQLINTEGER nativeError;
+		SQLSMALLINT length;
+		SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_MAX_MESSAGE_LENGTH, &length);
+		std::wcerr << "SQLExecute failed with error: " << message << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return false;
+	}
+	if (SQLFetch(hStmt) == SQL_SUCCESS) {
+		SQLGetData(hStmt, 1, SQL_C_LONG, &playerID, 0, NULL);
+		Game::getinstance().playerN.setplayerID(playerID);
+	}
+	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	disconnect();
+	return true;
+}
+
 bool SQLCONN::sqlSave() {
 	if (!connect()) {
 		return false;
@@ -534,7 +586,158 @@ bool SQLCONN::sqlSave() {
 		return false;
 	}
 	std::cout << "Player data save!" << std::endl;
+	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	disconnect();
+	return true;
+}
 
+bool SQLCONN::deleteInventory(int ID) {
+	SQLHSTMT hStmt;
+	SQLAllocHandle(SQL_HANDLE_STMT, sqlConnection, &hStmt);
+	SQLWCHAR* sqlQuery = nullptr;
+	SQLRETURN ret;
+	std::cout << "Saving inventory data..." << std::endl;
+	sqlQuery = (SQLWCHAR*)L"DELETE  FROM PlayerInventory WHERE playerID=?";
+
+	ret = SQLPrepare(hStmt, sqlQuery, SQL_NTS);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+		SQLCHAR sqlState[6], message[SQL_RETURN_CODE_LEN];
+		SQLINTEGER nativeError;
+		SQLSMALLINT length;
+		SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
+		std::wcerr << "SQLPrepare failed with error: " << message << std::endl;
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return false;
+	}
+
+	SQLLEN stringLength = SQL_NTS;
+	ret = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &ID, 0, NULL);
+	ret = SQLExecute(hStmt);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO ) {
+		if (ret == SQL_NO_DATA_FOUND) {
+			//we're still good
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			//disconnect();
+			return true;
+		}
+		else {
+			SQLCHAR sqlState[SQL_SQLSTATE_SIZE + 1], message[SQL_MAX_MESSAGE_LENGTH];
+			SQLINTEGER nativeError;
+			SQLSMALLINT length;
+			SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
+			std::wcerr << "SQLExecute failed with error: " << message << std::endl;
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			disconnect();
+			return false;
+		}
+		
+	}
+	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	//disconnect();
+	return true;
+}
+
+bool SQLCONN::InvSave() {
+	if (!connect()) {
+		return false;
+	}
+	Game& getInventory = Game::getinstance();
+	if (getInventory.Inventory.size() < 1) {
+		//there is nothing in inventory
+		return true;
+	}
+	SQLHSTMT hStmt;
+	SQLAllocHandle(SQL_HANDLE_STMT, sqlConnection, &hStmt);
+	std::string itemName, itemType;
+	int playerID, StrBuff, DefBuff, HPBuff;
+	bool isEquip;
+	//load data into temps
+	int currentInventory = 0;
+	playerID = getInventory.playerN.getplayerID();
+	if (playerID == 0) {
+		if (getplayerID()) {
+			playerID = getInventory.playerN.getplayerID();
+		}
+		else {
+			std::cout << "Failed to get playerID \n";
+			return false;
+		}
+	}
+	if (Game::getinstance().playerN.LoadedInfo) {
+		//delete all components
+		if (!deleteInventory(playerID)) {
+			std::cout << "Failed to delete inventory entries \n";
+			return false;
+		}
+	}
+
+	while (currentInventory < getInventory.Inventory.size()) {
+		itemName = getInventory.Inventory[currentInventory].getItemName();
+		itemType = getInventory.Inventory[currentInventory].getType();
+		isEquip = getInventory.Inventory[currentInventory].getIsEquip();
+		if (getInventory.Inventory[currentInventory].getStats().first == "Str") {
+			StrBuff = getInventory.Inventory[currentInventory].getStats().second;
+			DefBuff = 0;
+			HPBuff = 0;
+		}
+		else if (getInventory.Inventory[currentInventory].getStats().first == "Def") {
+			DefBuff = getInventory.Inventory[currentInventory].getStats().second;
+			StrBuff = 0;
+			HPBuff = 0;
+		}
+		else {
+			HPBuff= getInventory.Inventory[currentInventory].getStats().second;
+			StrBuff = 0;
+			DefBuff = 0;
+		}
+
+		
+		
+		SQLWCHAR* sqlQuery = nullptr;
+		SQLRETURN ret;
+		//if new char then new entry
+		
+		std::cout << "Saving inventory data for playerID: "<<playerID<<"..." << std::endl;
+		sqlQuery = (SQLWCHAR*)L"INSERT INTO PlayerInventory (playerID, isEquip, itemName, StrBuff, DefBuff, HPBuff, itemType)"
+			L"VALUES (?,?,?,?,?,?,?)";
+		 
+		ret = SQLPrepare(hStmt, sqlQuery, SQL_NTS);
+		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+			SQLCHAR sqlState[6], message[SQL_RETURN_CODE_LEN];
+			SQLINTEGER nativeError;
+			SQLSMALLINT length;
+			SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
+			std::wcerr << "SQLPrepare failed with error: " << message << std::endl;
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			return false;
+		}
+		
+		SQLLEN itemNameLength = static_cast<SQLLEN>(itemName.length());
+		SQLLEN itemTypeLength = static_cast<SQLLEN>(itemType.length());
+		ret = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &playerID, 0, NULL);
+		ret = SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_BIT, SQL_BIT, 0, 0, &isEquip, 0, NULL);
+		ret = SQLBindParameter(hStmt, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)itemName.c_str(), itemNameLength, &itemNameLength);
+		ret = SQLBindParameter(hStmt, 4, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &StrBuff, 0, NULL);
+		ret = SQLBindParameter(hStmt, 5, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &DefBuff, 0, NULL);
+		ret = SQLBindParameter(hStmt, 6, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &HPBuff, 0, NULL);
+		ret = SQLBindParameter(hStmt, 7, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 255, 0, (SQLPOINTER)itemType.c_str(), itemTypeLength, &itemTypeLength);
+	
+
+		ret = SQLExecute(hStmt);
+		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
+			SQLCHAR sqlState[SQL_SQLSTATE_SIZE + 1], message[SQL_MAX_MESSAGE_LENGTH];
+			SQLINTEGER nativeError;
+			SQLSMALLINT length;
+			SQLGetDiagRecW(SQL_HANDLE_STMT, hStmt, 1, (SQLWCHAR*)sqlState, &nativeError, (SQLWCHAR*)message, SQL_RETURN_CODE_LEN, &length);
+			std::wcerr << "SQLExecute failed with error: " << message << std::endl;
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			disconnect();
+			return false;
+		}
+		std::cout << "Inventory item "<< currentInventory+1 <<" saved!\n";
+
+		
+	}
 	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	disconnect();
 	return true;
@@ -582,9 +785,10 @@ bool SQLCONN::loadPlayerData(const std::string& a) {
 	std::cout << "fetching...." << std::endl;
 	while (SQLFetch(hStmt) == SQL_SUCCESS) {
 		// Assuming columns in order of EnemyID, SpawnLocation, EnemyName, HP, MP, STR, DEF, SPD, DODGE, SKILL1, SKILL2, SKILL3
-		SQLINTEGER currentLocation, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, level, MaxHP, GoldAmt, XP;
+		SQLINTEGER playerID, currentLocation, HP, MP, Str, Def, Spd, dodge, Skill1, Skill2, Skill3, Skill4, Skill5, Skill6, level, MaxHP, GoldAmt, XP;
 		SQLCHAR playerName[255], Skill1Desc[255], Skill2Desc[255], Skill3Desc[255], Skill4Desc[255], Skill5Desc[255], Skill6Desc[255]; // Assuming max length of 50 for name
 		
+		SQLGetData(hStmt, 1, SQL_C_LONG, &playerID, 0, NULL);
 		SQLGetData(hStmt, 2, SQL_C_LONG, &currentLocation, 0, NULL);
 		SQLGetData(hStmt, 4, SQL_C_LONG, &HP, 0, NULL);
 		SQLGetData(hStmt, 5, SQL_C_LONG, &MP, 0, NULL);
@@ -612,6 +816,7 @@ bool SQLCONN::loadPlayerData(const std::string& a) {
 		// Populate 
 		std::string name = a;
 		Player p1(name);
+		p1.setplayerID(playerID);
 		p1.LoadedInfo = true;
 		p1.location = currentLocation;
 		p1.init();

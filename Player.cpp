@@ -27,6 +27,12 @@ void Player::loadLvlReq() {
 		Lvlrequirements.insert(std::make_pair(item, false));
 	}
 }
+void Player::setplayerID(int ID) {
+	playerID = ID;
+}
+int Player::getplayerID()const {
+	return playerID;
+}
 int Player::getLvl()const {
 	return lvl;
 }

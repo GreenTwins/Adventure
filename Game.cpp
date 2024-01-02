@@ -1277,6 +1277,7 @@ void GameConsole::options() {
 				break;
 			case 6:
 				saveState();
+
 				break;
 			case 7:
 				backtoMain();
@@ -1308,7 +1309,11 @@ void GameConsole::saveState() {
 	switch (choice) {
 	case 1:
 		if (!SQLCONN::createInstance().sqlSave()) {
+			
 			std::cout << "failed to save data" << std::endl;
+		}
+		if ((!SQLCONN::createInstance().InvSave())) {
+			std::cout << "failed to save inventory data \n";
 		}
 		break;
 	case 2:

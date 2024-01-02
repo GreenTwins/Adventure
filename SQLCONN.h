@@ -34,10 +34,12 @@ public:
 	void getEnemies(int loc, int dunNum, std::vector<Enemy>&e);
 	bool getBoss(int loc, int dunNum, Boss& b);
 	bool sqlSave();
+	bool InvSave();
 	std::vector<std::string>playerList;
 	bool loadPlayerData(const std::string& a);
 	bool grabStoreData(int lvl);
-
+	bool getplayerID();
+	bool deleteInventory(int ID);
 };
 
 #endif

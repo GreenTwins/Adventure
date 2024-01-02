@@ -7,7 +7,7 @@
 class Player : public Character {
 	int numofAtks = 6;
 	int lvl{ 1 };
-	
+	int playerID = 0;
 	int MAX_HP = 0;
 	
 public:
@@ -18,6 +18,8 @@ public:
 	int getLvl()const;
 	void setlvl(int lvl);
 	void refillHP();
+	void setplayerID(int id);
+	int getplayerID()const;
 	//ATK
 	void init();
 	void createATK(int num);
@@ -38,8 +40,13 @@ public:
 	std::pair<std::string, int>attack4;
 	std::pair<std::string, int>attack5;
 	std::pair<std::string, int>attack6;
-	//INVENTORY
+	std::pair<std::string, int>attack7;
+	std::pair<std::string, int>attack8;
+	std::pair<std::string, int>attack9;
+	//Determine creation
 	bool LoadedInfo = false;
+
+
 };
 
 
