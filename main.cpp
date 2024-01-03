@@ -67,7 +67,11 @@ int main() {
 	//////start official game
 	Game::getinstance().playerN.displayStats(true);
 	GameConsole newGame;
-	SQLCONN::createInstance().sqlSave();//auto save new user data
+	//if (Game::getinstance().newChar) {
+	//	SQLCONN::createInstance().sqlSave();//auto save new user data
+	//	Game::getinstance().newChar = false;
+	//}
+	
 	newGame.display();
 	newGame.options();
 

@@ -614,13 +614,17 @@ bool MainMenu::display()const {
 	}
 		  break;
 	case 2: {
+		SQLCONN& sqlInstance = SQLCONN::createInstance();
 		if (!gameInstance.loadGame()) {
+			//make sure there actually is saved data
+			//if there is user selects from available players
 			GoToConsole = false;
 		}
-		
-		if (!SQLCONN::createInstance().loadPlayerData(gameInstance.playerN.getName())) {
+		//load chosen player
+		if (!sqlInstance.loadPlayerData(gameInstance.playerN.getName()) || (!sqlInstance.loadPlayerInventory(gameInstance.playerN.getplayerID()))) {
+			std::cout << "Error loading player \n";
 			GoToConsole = false;
-		}
+		} 
 	}
 		  break;
 	default:

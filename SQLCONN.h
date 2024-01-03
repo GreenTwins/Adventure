@@ -37,9 +37,11 @@ public:
 	bool InvSave();
 	std::vector<std::string>playerList;
 	bool loadPlayerData(const std::string& a);
+	bool loadPlayerInventory(int ID);
 	bool grabStoreData(int lvl);
 	bool getplayerID();
 	bool deleteInventory(int ID);
+	bool isConnectionActive();
 };
 
 #endif
